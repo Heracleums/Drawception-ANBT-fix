@@ -2466,8 +2466,8 @@ function wrapped() {
         if (options.maxCommentHeight) {
             var h = options.maxCommentHeight;
             GM_addStyle(
-                ".comment-holder:not(:target) .comment-body {overflow-y: hidden; max-height: " + h + "px; position:relative}" +
-                ".comment-holder:not(:target) .comment-body:before" +
+                "div:not(.forum-thread-starter).comment-holder:not(:target) .comment-body {overflow-y: hidden; max-height: " + h + "px; position:relative}" +
+                "div:not(.forum-thread-starter).comment-holder:not(:target) .comment-body:before" +
                 "{content: 'Click to read more'; position:absolute; width:100%; height:50px; left:0; top:" + (h - 50) + "px;" +
                 "text-align: center; font-weight: bold; color: #fff; text-shadow: 0 0 2px #000; padding-top: 20px; background:linear-gradient(transparent, rgba(0,0,0,0.4))}"
             );
