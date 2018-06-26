@@ -265,7 +265,7 @@ function wrapped() {
                 limitreached: false, // ??? appears to be redirecting to /play/limit/ which gives "game not found" error
                 html: html,
             };
-            
+
         }
 
         function getParametersFromPlay() {
@@ -1062,7 +1062,6 @@ function wrapped() {
         fixLocationToCanonical("/game/");
 
         var drawings = $('img[src^="https://cdn.drawception.com/images/panels/"],img[src^="https://cdn.drawception.com/drawings/"]');
-
         // Show each drawing make date
         drawings.each(function () {
             var d;
@@ -1892,7 +1891,7 @@ function wrapped() {
             });
             // Show topic title at the top of the posts instead and display subforum
             // Show game title at the top of the posts
-            $(".comment-body>p:last-child").each(function () {
+            $(".forum-thread-starter>p:last-child").each(function () {
                 var t = $(this);
                 var created = t.text().match(/^\s*Created/);
                 var commented = t.text().match(/^\s*Commented/);
@@ -1900,7 +1899,7 @@ function wrapped() {
                 var n = $('<h4 class="anbt_threadtitle">' + prefix + ": </h4>");
                 var thread = t.find("a");
                 n.append(thread);
-                t.parents(".row").first().prepend(n);
+                t.parent().first().prepend(n);
                 t.remove();
             });
         }
@@ -2681,7 +2680,7 @@ localStorage.setItem("gpe_darkCSS",
         ".popup,.v--modal{~#666$;border:1px solid #222$}.btn-reaction{~#666$;border:none$;color:#AAA$}.create-game-wrapper{~#444$}" +
         ".gsc-control-cse{~#444$;border-color:#333$}.gsc-above-wrapper-area,.gsc-result{border:none$}.gs-snippet{color:#AAA$}.gs-visibleUrl{color:#8A8$}a.gs-title b,.gs-visibleUrl b{color:#EEE$}.gsc-adBlock{display:none$}.gsc-input{~#444$;border-color:#333$;color:#EEE$}" +
         ".paypal-button-tag-content{color:#EEE$}" +
-        ".profile-header{~#444$}.profile-nav>li>a{~#2e2e2e$}.profile-nav>li:not(.disabled)>a:hover{~#232323$}.profile-nav>li.active>a{~#232323$}ul.nav-pills>li>a{~#2e2e2e$}ul.nav-pills>li>a:hover{~#232323$}ul.nav-pills>li.active>a{~#232323$}.disabled{~#2e2e2e$}.alert-warning{color:#EEE$;~#555$;border-color:#555$}.profile-nav>li.disabled>a{color:#555$}.numlikes{color:#EEE$}.gsc-input-box{~#444$;border-color:#333$}.option{~#2e2e2e$;color:#EEE$;border-color:#2e2e2e$}.option.selected{border-color:#e2e2e2$}.sleek-select{~#2e2e2e$}select{color:#EEE$}" + 
+        ".profile-header{~#444$}.profile-nav>li>a{~#2e2e2e$}.profile-nav>li:not(.disabled)>a:hover{~#232323$}.profile-nav>li.active>a{~#232323$}ul.nav-pills>li>a{~#2e2e2e$}ul.nav-pills>li>a:hover{~#232323$}ul.nav-pills>li.active>a{~#232323$}.disabled{~#2e2e2e$}.alert-warning{color:#EEE$;~#555$;border-color:#555$}.profile-nav>li.disabled>a{color:#555$}.numlikes{color:#EEE$}.gsc-input-box{~#444$;border-color:#333$}.option{~#2e2e2e$;color:#EEE$;border-color:#2e2e2e$}.option.selected{border-color:#e2e2e2$}.sleek-select{~#2e2e2e$}select{color:#EEE$}" +
         // We have entered specificity hell...
         "a.anbt_replaypanel:hover{color:#8af$}" +
         ".anbt_favedpanel{color:#d9534f$}" +
