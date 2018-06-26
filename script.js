@@ -245,7 +245,7 @@ function wrapped() {
                 gameid: drawapp.getAttribute("game_token"),
                 blitz: drawapp.getAttribute(":seconds") * 1 == 60, // can't tell blitz games from regular ones with 60 s left
                 nsfw: drawapp.getAttribute(":nsfw") == "true",
-                friend: drawapp.getAttribute(":public") != "true",
+                friend: drawapp.getAttribute(":game_public") != "true",
                 drawfirst: drawapp.getAttribute(":draw_first") == "true",
                 timeleft: drawapp.getAttribute(":seconds") * 1,
                 caption: drawapp.getAttribute("phrase"),
@@ -265,6 +265,7 @@ function wrapped() {
                 limitreached: false, // ??? appears to be redirecting to /play/limit/ which gives "game not found" error
                 html: html,
             };
+            
         }
 
         function getParametersFromPlay() {
@@ -372,7 +373,6 @@ function wrapped() {
 
         function handlePlayParameters() {
             var info = window.gameinfo;
-
             ID("skip").disabled = info.drawfirst || window.incontest;
             ID("report").disabled = info.drawfirst || window.incontest;
             ID("exit").disabled = false;
@@ -2681,11 +2681,12 @@ localStorage.setItem("gpe_darkCSS",
         ".popup,.v--modal{~#666$;border:1px solid #222$}.btn-reaction{~#666$;border:none$;color:#AAA$}.create-game-wrapper{~#444$}" +
         ".gsc-control-cse{~#444$;border-color:#333$}.gsc-above-wrapper-area,.gsc-result{border:none$}.gs-snippet{color:#AAA$}.gs-visibleUrl{color:#8A8$}a.gs-title b,.gs-visibleUrl b{color:#EEE$}.gsc-adBlock{display:none$}.gsc-input{~#444$;border-color:#333$;color:#EEE$}" +
         ".paypal-button-tag-content{color:#EEE$}" +
+        ".profile-header{~#444$}.profile-nav>li>a{~#2e2e2e$}.profile-nav>li:not(.disabled)>a:hover{~#232323$}.profile-nav>li.active>a{~#232323$}ul.nav-pills>li>a{~#2e2e2e$}ul.nav-pills>li>a:hover{~#232323$}ul.nav-pills>li.active>a{~#232323$}.disabled{~#2e2e2e$}.alert-warning{color:#EEE$;~#555$;border-color:#555$}.profile-nav>li.disabled>a{color:#555$}.numlikes{color:#EEE$}.gsc-input-box{~#444$;border-color:#333$}.option{~#2e2e2e$;color:#EEE$;border-color:#2e2e2e$}.option.selected{border-color:#e2e2e2$}.sleek-select{~#2e2e2e$}select{color:#EEE$}" + 
         // We have entered specificity hell...
         "a.anbt_replaypanel:hover{color:#8af$}" +
         ".anbt_favedpanel{color:#d9534f$}" +
         // Some lamey compression method!
-        ".profile-header{~#444$}.profile-nav>li>a{~#2e2e2e$}.profile-nav>li:not(.disabled)>a:hover{~#232323$}.profile-nav>li.active>a{~#232323$}ul.nav-pills>li>a{~#2e2e2e$}ul.nav-pills>li>a:hover{~#232323$}ul.nav-pills>li.active>a{~#232323$}.disabled{~#2e2e2e$}" + "").replace(/~/g, "background-color:").replace(/\$/g, " !important")
+        "").replace(/~/g, "background-color:").replace(/\$/g, " !important")
 );
 
 if (parseInt(localStorage.getItem("gpe_inDark"), 10) == 1) {
