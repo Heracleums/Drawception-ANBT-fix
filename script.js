@@ -1017,6 +1017,7 @@ function wrapped() {
             inDark = 0;
         }
         localStorage.setItem("gpe_inDark", inDark.toString());
+        betterEmoji();
         return;
     }
 
@@ -1248,6 +1249,7 @@ function wrapped() {
                     $(data.player_anchor).after('<sup title="' + cmt2 + '">' + data.comments + '</sup>');
                 }
             }
+            betterEmoji();
         }
 
         function waitForComments() {
@@ -1259,6 +1261,28 @@ function wrapped() {
         }
         setTimeout(waitForComments, 200);
 
+    }
+    
+    function betterEmoji() {
+        function changeEmoji(img){
+            if (parseInt(localStorage.getItem("gpe_inDark"))) {
+                img.src = `https://raw.githubusercontent.com/EnderDragonneau/Drawception-ANBT-fix/master/reaction-bw-${img.src.match(/\/reaction-bw-(\w+)/)[1]}.png`;
+            } else {
+                img.src = `https://drawception.com/img/reaction-bw-${img.src.match(/\/reaction-bw-(\w+)/)[1]}.png`
+            }
+        }
+        $("img.icon").each(function () {
+            var icon = $(this)[0];
+            if(icon.height == 15) {
+                icon.height = 16;
+                icon.width = 16;
+            }
+            changeEmoji(icon);
+        })
+        $(".label.label-trophy>span>img").each(function(){
+            var icon = $(this)[0];
+            changeEmoji(icon);
+        })
     }
 
     function checkForRecording(url, yesfunc, retrying) {
@@ -1909,6 +1933,7 @@ function wrapped() {
         var more = nav.find(">li:last-child");
         nav.append(more.find("li"));
         more.remove();
+        betterEmoji();
     }
 
     function betterForum() {
@@ -2135,6 +2160,7 @@ function wrapped() {
             if (!hidden) tempUnhideLink.hide();
             $(".forum-thread").first().before(tempUnhideLink);
         }
+        betterEmoji();
     }
 
     function loadScriptSettings() {
@@ -2464,6 +2490,7 @@ function wrapped() {
         );
         if (options.maxCommentHeight) {
             var h = options.maxCommentHeight;
+            //Ender modification
             GM_addStyle(
                 "div:not(.forum-thread-starter).comment-holder:not(:target) .comment-body {overflow-y: hidden; max-height: " + h + "px; position:relative}" +
                 "div:not(.forum-thread-starter).comment-holder:not(:target) .comment-body:before" +
@@ -2641,7 +2668,18 @@ function wrapped() {
     } else {
         pageEnhancements();
     }
-
+    //Ender modification
+    Array.from(document.querySelectorAll("#add-button")).forEach(function(x) {
+        x.addEventListener("mouseover", function () {
+            var interval = setInterval(function(){
+                var pop = Array.from(document.querySelectorAll(".popup"));
+                if(pop.length != 0) {
+                    clearInterval(interval);
+                    betterEmoji();
+                }
+            },1);
+        })
+    })
 } // wrapped
 
 // From http://userstyles.org/styles/93911/dark-gray-style-for-drawception-com
@@ -2679,8 +2717,10 @@ localStorage.setItem("gpe_darkCSS",
         ".thumbnail[style*='background-color: rgb(255, 255, 255)']{~#555$}" +
         ".popup,.v--modal{~#666$;border:1px solid #222$}.btn-reaction{~#666$;border:none$;color:#AAA$}.create-game-wrapper{~#444$}" +
         ".gsc-control-cse{~#444$;border-color:#333$}.gsc-above-wrapper-area,.gsc-result{border:none$}.gs-snippet{color:#AAA$}.gs-visibleUrl{color:#8A8$}a.gs-title b,.gs-visibleUrl b{color:#EEE$}.gsc-adBlock{display:none$}.gsc-input{~#444$;border-color:#333$;color:#EEE$}" +
+        //Ender modification
         ".paypal-button-tag-content{color:#EEE$}" +
-        ".profile-header{~#444$}.profile-nav>li>a{~#2e2e2e$}.profile-nav>li:not(.disabled)>a:hover{~#232323$}.profile-nav>li.active>a{~#232323$}ul.nav-pills>li>a{~#2e2e2e$}ul.nav-pills>li>a:hover{~#232323$}ul.nav-pills>li.active>a{~#232323$}.disabled{~#2e2e2e$}.alert-warning{color:#EEE$;~#555$;border-color:#555$}.profile-nav>li.disabled>a{color:#555$}.numlikes{color:#EEE$}.gsc-input-box{~#444$;border-color:#333$}.option{~#2e2e2e$;color:#EEE$;border-color:#2e2e2e$}.option.selected{border-color:#e2e2e2$}.sleek-select{~#2e2e2e$}select{color:#EEE$}" +
+        ".profile-header{~#444$}.profile-nav>li>a{~#2e2e2e$}.profile-nav>li:not(.disabled)>a:hover{~#232323$}.profile-nav>li.active>a{~#232323$}ul.nav-pills>li>a{~#2e2e2e$}ul.nav-pills>li>a:hover{~#232323$}ul.nav-pills>li.active>a{~#232323$}.disabled{~#2e2e2e$}.alert-warning{color:#EEE$;~#555$;border-color:#555$}.profile-nav>li.disabled>a{color:#555$}.numlikes{color:#EEE$}.gsc-input-box{~#444$;border-color:#333$}.gsc-completion-container{~#333$;border-color:#000$}.gsc-completion-selected{~#222$}.gsc-completion-container b{color:#AAA$}" + 
+        ".option{~#2e2e2e$;color:#EEE$;border-color:#2e2e2e$}.option.selected{border-color:#e2e2e2$}.sleek-select{~#2e2e2e$}select{color:#EEE$}" +
         // We have entered specificity hell...
         "a.anbt_replaypanel:hover{color:#8af$}" +
         ".anbt_favedpanel{color:#d9534f$}" +
