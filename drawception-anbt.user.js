@@ -492,6 +492,7 @@ function wrapped() {
                 }
                 ID("caption").value = "";
                 ID("caption").focus();
+                ID("caption").setAttribute("maxlength", 45);
                 ID("usedchars").textContent = "45";
             }
 
