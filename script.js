@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Drawception ANBT
-// @author       Grom PE
+// @author       Grom PE & EnderDragonneau (for some things)
 // @namespace    http://grompe.org.ru/
-// @version      1.136.2018.06
+// @version      1.140.2018.06
 // @description  Enhancement script for Drawception.com - Artists Need Better Tools
 // @downloadURL  https://raw.github.com/grompe/Drawception-ANBT/master/drawception-anbt.user.js
 // @match        http://drawception.com/*
@@ -14,7 +14,7 @@
 
 function wrapped() {
 
-    var SCRIPT_VERSION = "1.136.2018.06";
+    var SCRIPT_VERSION = "1.140.2018.06";
     var NEWCANVAS_VERSION = 39; // Increase to update the cached canvas
     var SITE_VERSION = "d41d8cd9"; // Last seen site version
 
@@ -492,7 +492,7 @@ function wrapped() {
                 }
                 ID("caption").value = "";
                 ID("caption").focus();
-                ID("usedchars").textContent = "46";
+                ID("usedchars").textContent = "45";
             }
 
             timerStart = Date.now() + 1000 * info.timeleft;
@@ -780,7 +780,7 @@ function wrapped() {
             }
 
             var updateUsedChars = function (e) {
-                ID("usedchars").textContent = 46 - ID("caption").value.length;
+                ID("usedchars").textContent = 45 - ID("caption").value.length;
             };
             ID("caption").addEventListener('change', updateUsedChars);
             ID("caption").addEventListener('keydown', updateUsedChars);
@@ -1262,32 +1262,43 @@ function wrapped() {
         setTimeout(waitForComments, 200);
 
     }
-    
+
     function betterEmoji() {
-        function changeEmoji(img){
+        function changeEmoji(img) {
             if (parseInt(localStorage.getItem("gpe_inDark"))) {
-                img.src = `https://raw.githubusercontent.com/EnderDragonneau/Drawception-ANBT-fix/master/reaction-bw-${img.src.match(/\/reaction-bw-(\w+)/)[1]}.png`;
+                img.src = `https://raw.githubusercontent.com/EnderDragonneau/Drawception-ANBT-fix/master/reactions/reaction-bw-${img.src.match(/\/reaction-bw-(\w+)/)[1]}.png`;
             } else {
                 img.src = `https://drawception.com/img/reaction-bw-${img.src.match(/\/reaction-bw-(\w+)/)[1]}.png`
             }
         }
         $("img.icon").each(function () {
             var icon = $(this)[0];
-            if(icon.height == 15) {
+            if (icon.height == 15) {
                 icon.height = 16;
                 icon.width = 16;
             }
             changeEmoji(icon);
         })
-        $(".label.label-trophy>span>img").each(function(){
+        $(".label.label-trophy>span>img").each(function () {
             var icon = $(this)[0];
             changeEmoji(icon);
+        })
+        Array.from(document.querySelectorAll("#add-button")).forEach(function (x) {
+            x.addEventListener("mouseover", function () {
+                var interval = setInterval(function () {
+                    var pop = Array.from(document.querySelectorAll(".popup-holder"));
+                    if (pop.length != 0) {
+                        clearInterval(interval);
+                        betterEmoji();
+                    }
+                }, 1);
+            })
         })
     }
 
     function checkForRecording(url, yesfunc, retrying) {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
+        xhr.open('GET', url + "?anbt", true);
         xhr.responseType = 'arraybuffer';
         xhr.onload = function () {
             var buffer = this.response;
@@ -1665,7 +1676,6 @@ function wrapped() {
             localStorage.setItem("gpe_gameBookmarks", JSON.stringify(games));
         });
     }
-
     window.viewMyCover = viewMyCover;
 
     function viewMyCover() {
@@ -1769,9 +1779,9 @@ function wrapped() {
             a.append('<a class="btn btn-primary" href="#anbt_panelfavorites" onclick="viewMyPanelFavorites();">Panel Favorites</a> ');
             a.append('<a class="btn btn-primary" href="#anbt_gamebookmarks" onclick="viewMyGameBookmarks();">Game Bookmarks</a> ');
             a.append('<a class="btn btn-primary" href="#anbt_cover" onclick="viewMyCover();">Cover Panels</a> ');
-            var newrow = $('<div class="row"></div>');
-            newrow.append($('<div class="col-md-12"></div>').append(a).append('<div id="anbt_userpage">' + randomGreeting() + '</div>'));
-            $("div.col-md-8").first().parent().before(newrow);
+            var newrow = $('<div style="padding: 0 0 40px 0 !important;"></div>');
+            newrow.append(a).append('<div id="anbt_userpage">' + randomGreeting() + '</div>');
+            $(".profile-layout-content").first().parent().before(newrow);
 
             if (document.location.hash.indexOf("#anbt_panelfavorites") != -1) viewMyPanelFavorites();
             if (document.location.hash.indexOf("#anbt_gamebookmarks") != -1) viewMyGameBookmarks();
@@ -2490,7 +2500,6 @@ function wrapped() {
         );
         if (options.maxCommentHeight) {
             var h = options.maxCommentHeight;
-            //Ender modification
             GM_addStyle(
                 "div:not(.forum-thread-starter).comment-holder:not(:target) .comment-body {overflow-y: hidden; max-height: " + h + "px; position:relative}" +
                 "div:not(.forum-thread-starter).comment-holder:not(:target) .comment-body:before" +
@@ -2668,18 +2677,6 @@ function wrapped() {
     } else {
         pageEnhancements();
     }
-    //Ender modification
-    Array.from(document.querySelectorAll("#add-button")).forEach(function(x) {
-        x.addEventListener("mouseover", function () {
-            var interval = setInterval(function(){
-                var pop = Array.from(document.querySelectorAll(".popup"));
-                if(pop.length != 0) {
-                    clearInterval(interval);
-                    betterEmoji();
-                }
-            },1);
-        })
-    })
 } // wrapped
 
 // From http://userstyles.org/styles/93911/dark-gray-style-for-drawception-com
@@ -2717,9 +2714,8 @@ localStorage.setItem("gpe_darkCSS",
         ".thumbnail[style*='background-color: rgb(255, 255, 255)']{~#555$}" +
         ".popup,.v--modal{~#666$;border:1px solid #222$}.btn-reaction{~#666$;border:none$;color:#AAA$}.create-game-wrapper{~#444$}" +
         ".gsc-control-cse{~#444$;border-color:#333$}.gsc-above-wrapper-area,.gsc-result{border:none$}.gs-snippet{color:#AAA$}.gs-visibleUrl{color:#8A8$}a.gs-title b,.gs-visibleUrl b{color:#EEE$}.gsc-adBlock{display:none$}.gsc-input{~#444$;border-color:#333$;color:#EEE$}" +
-        //Ender modification
         ".paypal-button-tag-content{color:#EEE$}" +
-        ".profile-header{~#444$}.profile-nav>li>a{~#2e2e2e$}.profile-nav>li:not(.disabled)>a:hover{~#232323$}.profile-nav>li.active>a{~#232323$}ul.nav-pills>li>a{~#2e2e2e$}ul.nav-pills>li>a:hover{~#232323$}ul.nav-pills>li.active>a{~#232323$}.disabled{~#2e2e2e$}.alert-warning{color:#EEE$;~#555$;border-color:#555$}.profile-nav>li.disabled>a{color:#555$}.numlikes{color:#EEE$}.gsc-input-box{~#444$;border-color:#333$}.gsc-completion-container{~#333$;border-color:#000$}.gsc-completion-selected{~#222$}.gsc-completion-container b{color:#AAA$}" + 
+        ".profile-header{~#444$}.profile-nav>li>a{~#2e2e2e$}.profile-nav>li:not(.disabled)>a:hover{~#232323$}.profile-nav>li.active>a{~#232323$}ul.nav-pills>li>a{~#2e2e2e$}ul.nav-pills>li>a:hover{~#232323$}ul.nav-pills>li.active>a{~#232323$}.disabled{~#2e2e2e$}.alert-warning{color:#EEE$;~#555$;border-color:#555$}.profile-nav>li.disabled>a{color:#555$}.numlikes{color:#EEE$}.gsc-input-box{~#444$;border-color:#333$}.gsc-completion-container{~#333$;border-color:#000$}.gsc-completion-selected{~#222$}.gsc-completion-container b{color:#AAA$}" +
         ".option{~#2e2e2e$;color:#EEE$;border-color:#2e2e2e$}.option.selected{border-color:#e2e2e2$}.sleek-select{~#2e2e2e$}select{color:#EEE$}" +
         // We have entered specificity hell...
         "a.anbt_replaypanel:hover{color:#8af$}" +
