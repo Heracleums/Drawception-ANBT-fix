@@ -4,7 +4,7 @@
 // @namespace    http://grompe.org.ru/
 // @version      1.140.2018.06
 // @description  Enhancement script for Drawception.com - Artists Need Better Tools
-// @downloadURL  https://raw.github.com/grompe/Drawception-ANBT/master/drawception-anbt.user.js
+// @downloadURL  https://raw.githubusercontent.com/EnderDragonneau/Drawception-ANBT-fix/master/script.js
 // @match        http://drawception.com/*
 // @match        https://drawception.com/*
 // @grant        none
