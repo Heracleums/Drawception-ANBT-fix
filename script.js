@@ -1266,7 +1266,7 @@ function wrapped() {
     function betterEmoji() {
         function changeEmoji(img) {
             if (parseInt(localStorage.getItem("gpe_inDark"))) {
-                img.src = `https://raw.githubusercontent.com/EnderDragonneau/Drawception-ANBT-fix/master/reactions/reaction-bw-${img.src.match(/\/reaction-bw-(\w+)/)[1]}.png`;
+                img.src = `https://raw.githubusercontent.com/EnderDragonneau/Drawception-ANBT-fix/master/reaction-bw-${img.src.match(/\/reaction-bw-(\w+)/)[1]}.png`;
             } else {
                 img.src = `https://drawception.com/img/reaction-bw-${img.src.match(/\/reaction-bw-(\w+)/)[1]}.png`
             }
