@@ -28,7 +28,7 @@ A userscript to make Drawception.com better: more drawing tools, tablet support,
     
     and follow it while being on drawception.com site; if that doesn't work, try pasting it in the address bar.
 
-After installing script management add-on, just click on the [**Direct script link**](https://raw.github.com/grompe/Drawception-ANBT/master/drawception-anbt.user.js).
+After installing script management add-on, just click on the [**Direct script link**](https://raw.githubusercontent.com/EnderDragonneau/Drawception-ANBT-fix/master/drawception-anbt.user.js).
 
 
 ## FEATURES
