@@ -2,7 +2,7 @@
 // @name         Drawception ANBT
 // @author       Grom PE & EnderDragonneau (for some things)
 // @namespace    http://grompe.org.ru/
-// @version      1.140.2018.06
+// @version      1.141.2018.07
 // @description  Enhancement script for Drawception.com - Artists Need Better Tools
 // @downloadURL  https://rawgit.com/EnderDragonneau/Drawception-ANBT-fix/master/drawception-anbt.user.js
 // @match        http://drawception.com/*
@@ -14,7 +14,7 @@
 
 function wrapped() {
 
-    var SCRIPT_VERSION = "1.140.2018.06";
+    var SCRIPT_VERSION = "1.141.2018.07";
     var NEWCANVAS_VERSION = 39; // Increase to update the cached canvas
     var SITE_VERSION = "d41d8cd9"; // Last seen site version
 
@@ -53,6 +53,7 @@ function wrapped() {
         maxCommentHeight: 1000,
         useOldFont: true,
         useOldFontSize: true,
+        anbtUpdateAlert: 0,
     };
 
     /*
@@ -1285,10 +1286,10 @@ function wrapped() {
             changeEmoji(icon);
         })
         Array.from(document.querySelectorAll("#add-button")).forEach(function (x) {
-            x.addEventListener("mouseover", function () {
+            x.parentElement.addEventListener("mouseover", function () {
                 var interval = setInterval(function () {
-                    var pop = Array.from(document.querySelectorAll(".popup-holder"));
-                    if (pop.length != 0) {
+                    var pop = document.querySelectorAll(".popup");
+                    if (pop.length > 0) {
                         clearInterval(interval);
                         betterEmoji();
                     }
@@ -2236,42 +2237,43 @@ function wrapped() {
             theForm.append(div);
         };
         addGroup('Pen Tablet (requires plugin: <a href="http://www.wacomeng.com/web/fbWTPInstall.zip">Windows</a> | <a href="http://www.wacomeng.com/web/Wacom%20Mac%20Plug-in%20Installer.zip">Mac OS</a> | <a href="https://github.com/ZaneA/WacomWebPlugin">Linux</a>)', [
-      ["enableWacom", "boolean", "Enable Wacom plugin / pressure sensitivity support"],
-      ["fixTabletPluginGoingAWOL", "boolean", "Try to prevent Wacom plugin from disappearing"],
+        ["enableWacom", "boolean", "Enable Wacom plugin / pressure sensitivity support"],
+        ["fixTabletPluginGoingAWOL", "boolean", "Try to prevent Wacom plugin from disappearing"],
       //["pressureExponent", "number", "Pressure exponent (smaller = softer tablet response, bigger = sharper)"],
     ]);
         addGroup("Play (most settings are for the new canvas only)", [
-      ["newCanvas", "boolean", 'New drawing canvas (also allows <a href="http://grompe.org.ru/replayable-drawception/">watching playback</a>)'],
-      ["submitConfirm", "boolean", "Confirm submitting if more than a minute is left"],
-      ["smoothening", "boolean", "Smoothing of strokes"],
-      ["hideCross", "boolean", "Hide the cross when drawing"],
-      ["enterToCaption", "boolean", "Submit captions (and start games) by pressing Enter"],
-      ["backup", "boolean", "Save the drawing in case of error and restore it in sandbox"],
-      ["timeoutSound", "boolean", "Warning sound when only a minute is left (normal games)"],
-      ["timeoutSoundBlitz", "boolean", "Warning sound when only 5 seconds left (blitz)"],
-      ["timeoutSoundVolume", "number", "Volume of the warning sound, in %"],
-      ["rememberPosition", "boolean", "Show your panel position and track changes in unfinished games list"],
-      ['colorNumberShortcuts', 'boolean', "Use 0-9 keys to select the color"],
-      ['colorUnderCursorHint', 'boolean', "Show the color under the cursor in the palette"],
-      ['colorDoublePress', 'boolean', 'Double press 0-9 keys to select color without pressing shift'],
-      ['bookmarkOwnCaptions', 'boolean', "Automatically bookmark your own captions in case of dustcatchers"],
+        ["newCanvas", "boolean", 'New drawing canvas (also allows <a href="http://grompe.org.ru/replayable-drawception/">watching playback</a>)'],
+        ["submitConfirm", "boolean", "Confirm submitting if more than a minute is left"],
+        ["smoothening", "boolean", "Smoothing of strokes"],
+        ["hideCross", "boolean", "Hide the cross when drawing"],
+        ["enterToCaption", "boolean", "Submit captions (and start games) by pressing Enter"],
+        ["backup", "boolean", "Save the drawing in case of error and restore it in sandbox"],
+        ["timeoutSound", "boolean", "Warning sound when only a minute is left (normal games)"],
+        ["timeoutSoundBlitz", "boolean", "Warning sound when only 5 seconds left (blitz)"],
+        ["timeoutSoundVolume", "number", "Volume of the warning sound, in %"],
+        ["rememberPosition", "boolean", "Show your panel position and track changes in unfinished games list"],
+        ['colorNumberShortcuts', 'boolean', "Use 0-9 keys to select the color"],
+        ['colorUnderCursorHint', 'boolean', "Show the color under the cursor in the palette"],
+        ['colorDoublePress', 'boolean', 'Double press 0-9 keys to select color without pressing shift'],
+        ['bookmarkOwnCaptions', 'boolean', "Automatically bookmark your own captions in case of dustcatchers"],
     ]);
         addGroup("Miscellaneous", [
-      ["localeTimestamp", "boolean", "Format timestamps as your system locale (" + (new Date()).toLocaleString() + ")"],
-      ["removeFlagging", "boolean", "Remove flagging buttons"],
-      ["ownPanelLikesSecret", "boolean", "Hide your own panels' number of Likes (in game only)"],
-      ["proxyImgur", "boolean", "Replace imgur.com links to filmot.com to load, in case your ISP blocks them"],
-      ["ajaxRetry", "boolean", "Retry failed AJAX requests"],
-      ["autoplay", "boolean", "Automatically start replay when watching playback"],
-      ["autoBypassNSFW", "boolean", "Automatically bypass NSFW game warning"],
-      ["markStalePosts", "boolean", "Mark stale forum posts"],
-      ["maxCommentHeight", "number", "Maximum comments and posts height until directly linked (px, 0 = no limit)"],
-      ["useOldFont", "boolean", "Use old Nunito font (which is usually bolder and less wiggly)"],
-      ["useOldFontSize", "boolean", "Use old, smaller font size"],
+        ["localeTimestamp", "boolean", "Format timestamps as your system locale (" + (new Date()).toLocaleString() + ")"],
+        ["removeFlagging", "boolean", "Remove flagging buttons"],
+        ["ownPanelLikesSecret", "boolean", "Hide your own panels' number of Likes (in game only)"],
+        ["proxyImgur", "boolean", "Replace imgur.com links to filmot.com to load, in case your ISP blocks them"],
+        ["ajaxRetry", "boolean", "Retry failed AJAX requests"],
+        ["autoplay", "boolean", "Automatically start replay when watching playback"],
+        ["autoBypassNSFW", "boolean", "Automatically bypass NSFW game warning"],
+        ["markStalePosts", "boolean", "Mark stale forum posts"],
+        ["maxCommentHeight", "number", "Maximum comments and posts height until directly linked (px, 0 = no limit)"],
+        ["useOldFont", "boolean", "Use old Nunito font (which is usually bolder and less wiggly)"],
+        ["useOldFontSize", "boolean", "Use old, smaller font size"],
+        ["anbtUpdateAlert", "boolean", "Be alerted of new ANBT updates (experimental)"],
     ]);
         addGroup("Advanced", [
-      ["newCanvasCSS", "longstr", 'Custom CSS for new canvas (experimental, <a href="https://github.com/grompe/Drawception-ANBT/tree/master/newcanvas_styles">get styles here</a>)'],
-      ["forumHiddenUsers", "longstr", 'Comma-separated list of user IDs whose forum posts are hidden'],
+        ["newCanvasCSS", "longstr", 'Custom CSS for new canvas (experimental, <a href="https://github.com/grompe/Drawception-ANBT/tree/master/newcanvas_styles">get styles here</a>)'],
+        ["forumHiddenUsers", "longstr", 'Comma-separated list of user IDs whose forum posts are hidden'],
     ]);
         theForm.append('<br><div class="control-group"><div class="controls"><input name="submit" type="submit" class="btn btn-primary" value="Apply"> <b id="anbtSettingsOK" class="label label-theme_holiday" style="display:none">Saved!</b></div></div>');
         $("#main").prepend(theForm);
@@ -2600,7 +2602,7 @@ function wrapped() {
             "#user-notify-list .list-group .list-group-item .glyphicon {color: #888}" +
             "#user-notify-list .list-group .list-group-item:nth-child(-n+" + num + ") .glyphicon {color: #2F5}" +
             "a.wrong-order {color: #F99} div.comment-holder:target, div.comment-holder2:target {background-color: #DFD}" +
-            ".comment-new .text-muted:last-child:after {content: 'New'; color: #2F5; font-weight: bold; background-color: #183; border-radius: 9px; display: inline-block; padding: 0px 6px; margin-left: 10px;}"
+            ".comment-new [title='Link to comment']:after {content: 'New'; color: #2F5; font-weight: bold; background-color: #183; border-radius: 9px; display: inline-block; padding: 0px 6px; margin-left: 10px}"
         );
 
         // Show an error if it occurs instead of "loading forever"
@@ -2622,6 +2624,25 @@ function wrapped() {
                 });
             }
         };
+        if (options.anbtUpdateAlert) {
+            $(".navbar-header").append('<div class="modal fade" id="checkANBTUpdate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button><h4 class="modal-title">ANBT Update</h4></div><div id="modal-item-list" class="modal-body"></div><div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Close</button></div></div></div></div>');
+            $("a[href='#myItems'].navbar-btn").parent().after('<div class="pull-left navbar-userbar gpe-wide-block"><a href="#checkANBTUpdate" class="btn btn-menu navbar-btn navbar-user-item" data-placement="bottom" data-toggle="modal" rel="tooltip" title="" data-original-title="ANBT Update"><span class="glyphicon glyphicon-download-alt glyphicon-1pxtweak add-opacity"></span></a></div>');
+            GM_addStyle("a.update {color: #fff !important; background-color: #ff4136 !important} a.update:hover {color: #fff !important; background-color: #c9302c !important} .version {text-decoration: underline}");
+            var update = new XMLHttpRequest();
+            update.open("GET", "https://raw.githubusercontent.com/EnderDragonneau/Drawception-ANBT-fix/master/version.json");
+            update.responseType = 'json';
+            update.onload = function () {
+                var response = update.response;
+                if (response.version.split(".")[1] > SCRIPT_VERSION.split(".")[1]) {
+                    $("a[href='#checkANBTUpdate'].navbar-btn").addClass("update");
+                    $("#checkANBTUpdate .modal-body").append("<p class='lead'>Hey! A new version of ANBT is available.</p><p><span class='version'>Current version:</span> " + SCRIPT_VERSION + "</p><p><span class='version'>Last version:</span> " + response.version + "</p>");
+                    $("#checkANBTUpdate .modal-footer").append("<a href='" + response.downloadURL + "' class='btn btn-info'>UPDATE</a>");
+                } else {
+                    $("#checkANBTUpdate .modal-body").append("<p class='lead'>Hey! No update is available at the moment, you already have the latest version of ANBT.</p>")
+                }
+            }
+            update.send();
+        }
 
         var versionDisplay;
         try {
@@ -2717,7 +2738,7 @@ localStorage.setItem("gpe_darkCSS",
         ".gsc-control-cse{~#444$;border-color:#333$}.gsc-above-wrapper-area,.gsc-result{border:none$}.gs-snippet{color:#AAA$}.gs-visibleUrl{color:#8A8$}a.gs-title b,.gs-visibleUrl b{color:#EEE$}.gsc-adBlock{display:none$}.gsc-input{~#444$;border-color:#333$;color:#EEE$}" +
         ".paypal-button-tag-content{color:#EEE$}" +
         ".profile-header{~#444$}.profile-nav>li>a{~#2e2e2e$}.profile-nav>li:not(.disabled)>a:hover{~#232323$}.profile-nav>li.active>a{~#232323$}ul.nav-pills>li>a{~#2e2e2e$}ul.nav-pills>li>a:hover{~#232323$}ul.nav-pills>li.active>a{~#232323$}.disabled{~#2e2e2e$}.alert-warning{color:#EEE$;~#555$;border-color:#555$}.profile-nav>li.disabled>a{color:#555$}.numlikes{color:#EEE$}.gsc-input-box{~#444$;border-color:#333$}.gsc-completion-container{~#333$;border-color:#000$}.gsc-completion-selected{~#222$}.gsc-completion-container b{color:#AAA$}" +
-        ".option{~#2e2e2e$;color:#EEE$;border-color:#2e2e2e$}.option.selected{border-color:#e2e2e2$}.sleek-select{~#2e2e2e$}select{color:#EEE$}" +
+        ".option{~#2e2e2e$;color:#EEE$;border-color:#2e2e2e$}.option.selected{border-color:#e2e2e2$}.sleek-select{~#2e2e2e$}select{color:#EEE$}a.update{color:#fff$;~#ff4136$}a.update:hover{color:#fff$;~#c9302c$}" +
         // We have entered specificity hell...
         "a.anbt_replaypanel:hover{color:#8af$}" +
         ".anbt_favedpanel{color:#d9534f$}" +

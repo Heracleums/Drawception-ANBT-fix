@@ -1,3 +1,9 @@
+1.141.2018.07
+- Add an ANBT update alert (experimental)
+- Add option to enable/disable the ANBT update alert (Miscellaneous)
+- Fix the green "New" in comments (it only appears once now)
+- Fix the white emoji glitch (when you point the "EMOTE" button with your mouse)
+
 1.140.2018.06
 - Fix the replay problem
 - Fix Panel Favorites/Game Bookmarks/Cover Panels in profile
@@ -7,7 +13,7 @@
 - Fix comments and forums posts in profile
 - Fix some problems with the Dark Mode
 - Add white emojis
-- Change comments and forum posts emojis height (from 15x15 to 16x16 for more visibility and detail)
+- Change comments and forum posts emojis height (from 15x15 to 16x16 for more visibility and details)
 
 1.138.2018.06
 - Fix public/friend game problem
