@@ -11,6 +11,8 @@ A userscript to make Drawception.com better: more drawing tools, tablet support,
 
 [Chat about the script and the site](http://chat.grompe.org.ru/#drawception)
 
+If you found a bug and if it doesn't appear in [this list](https://trello.com/b/LMQWbeUf/drawception-anbt), please, report it in the Drawception forum.
+
 ## HOW TO USE
 
 - Chrome/Iron:
