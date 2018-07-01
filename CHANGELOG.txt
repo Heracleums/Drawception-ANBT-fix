@@ -2,7 +2,7 @@
 - Add an ANBT update alert (experimental)
 - Add option to enable/disable the ANBT update alert (Settings -> Miscellaneous section)
 - Fix the green "New" in comments (it only appears once now)
-- Fix the white emoji glitch (when you point the "EMOTE" button with your mouse)
+- Fix the white emojis glitch (when you point the "EMOTE" button with your mouse)
 
 1.140.2018.06
 - Fix the replay problem
