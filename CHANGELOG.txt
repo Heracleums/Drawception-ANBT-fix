@@ -1,6 +1,6 @@
 1.141.2018.07
 - Add an ANBT update alert (experimental)
-- Add option to enable/disable the ANBT update alert (Miscellaneous)
+- Add option to enable/disable the ANBT update alert (Settings -> Miscellaneous section)
 - Fix the green "New" in comments (it only appears once now)
 - Fix the white emoji glitch (when you point the "EMOTE" button with your mouse)
 
