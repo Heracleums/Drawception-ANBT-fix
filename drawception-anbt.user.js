@@ -28,7 +28,8 @@ function wrapped() {
 		pressureExponent: 0.5, // Smaller = softer tablet response, bigger = sharper
 		brushSizes: [2, 5, 12, 35], // Brush sizes for choosing via keyboard
 		chatAutoConnect: 0, // Whether to automatically connect to the chat
-		removeFlagging: 1, // Whether to remove flagging buttons
+		// Ender's modifications
+		//removeFlagging: 1, // Whether to remove flagging buttons
 		ownPanelLikesSecret: 0,
 		backup: 1,
 		timeoutSound: 0,
@@ -1095,7 +1096,8 @@ function wrapped() {
 			.after(' <a href="#" class="btn btn-default" onclick="return likeAll();" title="Like all panels"><span class="fas fa-thumbs-up"></span> Like all</a>');
 
 		// Remove the temptation to judge
-		if (options.removeFlagging) $(".flagbutton").remove();
+		// Ender's modifications
+		// if (options.removeFlagging) $(".flagbutton").remove();
 
 		// Panel favorite buttons
 		var favButton = $('<span class="panel-number anbt_favpanel fas fa-heart text-muted" title="Favorite"></span>');
@@ -1702,7 +1704,8 @@ function wrapped() {
 
 	function betterPlayer() {
 		// Remove the temptation to judge
-		if (options.removeFlagging) $('a.btn:contains("Report")').remove();
+		// Ender's modifications
+		// if (options.removeFlagging) $('a.btn:contains("Report")').remove();
 
 		// Linkify the links in location
 		var pubinfo = $('.profile-user-header div>b:contains("Location")').parent();
@@ -2162,7 +2165,8 @@ function wrapped() {
     ]);
 		addGroup("Miscellaneous", [
       ["localeTimestamp", "boolean", "Format timestamps as your system locale (" + (new Date()).toLocaleString() + ")"],
-      ["removeFlagging", "boolean", "Remove flagging buttons"],
+	  // Ender's modifications
+      //["removeFlagging", "boolean", "Remove flagging buttons"],
       ["ownPanelLikesSecret", "boolean", "Hide your own panels' number of Likes (in game only)"],
       ["proxyImgur", "boolean", "Replace imgur.com links to filmot.com to load, in case your ISP blocks them"],
       ["ajaxRetry", "boolean", "Retry failed AJAX requests"],
@@ -2471,6 +2475,7 @@ function wrapped() {
 		// Let users with screens narrow enough so top bar isn't visible still use toggle light function
 		$("#main-menu").prepend('<a href="javascript:toggleLight()" class="list-group-item"><span class="fas fa-eye"></span> Toggle light</a>');
 
+		// Ender's modifications
 		p = $(".navbar-user a[href^='/store/']").parent();
 		var inventory = $('<a href="#myItems" class="btn btn-menu navbar-btn navbar-user-item" data-toggle="modal" rel="tooltip" title="Inventory">' +
 			'<span class="fas fa-toolbox add-opacity"></span></a>');
@@ -2630,7 +2635,7 @@ localStorage.setItem("gpe_darkCSS",
 		".profile-header{~#555$}.profile-nav>li>a{~#333$}.profile-nav>li.active>a,.profile-nav>li:not(.disabled)>a:hover{~#555$}.profile-nav>li.disabled>a{color:#555$}" +
 		".gsc-control-cse{~#444$;border-color:#333$}.gsc-above-wrapper-area,.gsc-result{border:none$}.gs-snippet{color:#AAA$}.gs-visibleUrl{color:#8A8$}a.gs-title b,.gs-visibleUrl b{color:#EEE$}.gsc-adBlock{display:none$}.gsc-input{~#444$;border-color:#333$;color:#EEE$}" +
 		// Ender's modifications
-		".highlight{border:none$;background:none$}#header-emotes{~#555$}#header-bar-container{border:none$}.paypal-button-tag-content{color:#EEE$}.numlikes{color:#EEE$}.gsc-input-box{~#444$;border-color:#333$}.gsc-completion-container{~#333$;border-color:#000$}.gsc-completion-selected{~#222$}.gsc-completion-container b{color:#AAA$}.alert-nice{~#4a4a4a$}.store-buy-coins{~#777$}.store-buy-coins:hover{~#666$}.store-buy-coins>h2,.store-buy-coins>h2>small{color:#EEE$}.store-package-selector{~#888$}.store-package-selector>label{color:#EEE$}.label-stat{~#444$;color:#EEE$;border:1px solid #555$}.label-stat.disabled{~#333$}.option{~#2e2e2e$;color:#EEE$;border-color:#2e2e2e$}.option.selected{border-color:#e2e2e2$}.sleek-select{~#2e2e2e$}select{color:#EEE$}.modal-note{color:#EEE$}.vue-dialog-button{~#555$;border:none$}.vue-dialog-button:hover{~#5a5a5a$}.vue-dialog-buttons{border-top:1px solid #222$}.label-darkgray{padding:.3em .6em .2em$;~#444$;color:#EEE$}.dashboard-item{~#333$}legend{color:#EEE$}" +
+		".highlight{border:none$;background:none$}#header-emotes{~#555$}#header-bar-container{border:none$}.paypal-button-tag-content{color:#EEE$}.numlikes{color:#EEE$}.gsc-input-box{~#444$;border-color:#333$}.gsc-completion-container{~#333$;border-color:#000$}.gsc-completion-selected{~#222$}.gsc-completion-container b{color:#AAA$}.alert-nice{~#4a4a4a$}.store-buy-coins{~#777$}.store-buy-coins:hover{~#666$}.store-buy-coins>h2,.store-buy-coins>h2>small{color:#EEE$}.store-package-selector{~#888$}.store-package-selector>label{color:#EEE$}.label-stat{~#444$;color:#EEE$;border:1px solid #555$}.label-stat.disabled{~#333$}.option{~#2e2e2e$;color:#EEE$;border-color:#2e2e2e$}.option.selected{border-color:#e2e2e2$}.sleek-select{~#2e2e2e$}select{color:#EEE$}.modal-note{color:#EEE$}.vue-dialog-button{~#555$;border:none$}.vue-dialog-button:hover{~#5a5a5a$}.vue-dialog-buttons{border-top:1px solid #222$}.label-darkgray{padding:.3em .6em .2em$;~#444$;color:#EEE$}.dashboard-item{~#333$}legend{color:#EEE$}.list-group-item{~#444$;color:#EEE$;border:1px solid #222$}.alert-warning{color:#EEE$;~#555$;border-color:#555$}.btn-reaction.active{border:1px solid #2ecc40$}" +
 		// We have entered specificity hell...
 		"a.anbt_replaypanel:hover{color:#8af$}" +
 		".anbt_favedpanel{color:#d9534f$}" +
