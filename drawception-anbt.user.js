@@ -241,6 +241,7 @@ function wrapped() {
 				el = doc.querySelector(query);
 				return el;
 			}
+			console.log(drawapp);
 			return {
 				error: getel(".error") ? el.textContent.trim() : false,
 				gameid: drawapp.getAttribute("game_token"),
@@ -440,10 +441,11 @@ function wrapped() {
 				theme_gameboy: ["Gameboy", "#9bbc0f"],
 				theme_neon: ["Neon", "#00abff"],
 				theme_sepia: ["Sepia", "#ffe2c4"],
-				theme_valentines: ["Valentine's", "#ffccdf"],
+				theme_valentines: ["Valentine's", "#fdc0c6"],
 				theme_blues: ["the blues", "#295c6f"],
 				theme_spring: ["Spring", "#ffffff"],
 				theme_beach: ["Beach", "#f7dca2"],
+				theme_beach_2: ["Beach 2","#2271a2"],
 				theme_coty_2016: ["Colors of 2016", "#648589"],
 				theme_bee: ["Bee", "#ffffff"],
 				theme_coty_2017: ["Colors of 2017", "#5f7278"],
@@ -2475,17 +2477,6 @@ function wrapped() {
 		// Let users with screens narrow enough so top bar isn't visible still use toggle light function
 		$("#main-menu").prepend('<a href="javascript:toggleLight()" class="list-group-item"><span class="fas fa-eye"></span> Toggle light</a>');
 
-		// Ender's modifications
-		p = $(".navbar-user a[href^='/store/']").parent();
-		var inventory = $('<a href="#myItems" class="btn btn-menu navbar-btn navbar-user-item" data-toggle="modal" rel="tooltip" title="Inventory">' +
-			'<span class="fas fa-toolbox add-opacity"></span></a>');
-		p.before(inventory);
-		inventory.wrap('<div class="pull-left navbar-userbar gpe-wide-block">');
-		inventory.tooltip({
-			placement: "bottom"
-		});
-		inventory.click(getItems);
-
 		p = $(".btn-menu-player").parent();
 		var userlink = $('.player-dropdown a[href^="/player/"]').attr("href");
 		var useravatar = $('.btn-menu-player').html();
@@ -2635,7 +2626,7 @@ localStorage.setItem("gpe_darkCSS",
 		".profile-header{~#555$}.profile-nav>li>a{~#333$}.profile-nav>li.active>a,.profile-nav>li:not(.disabled)>a:hover{~#555$}.profile-nav>li.disabled>a{color:#555$}" +
 		".gsc-control-cse{~#444$;border-color:#333$}.gsc-above-wrapper-area,.gsc-result{border:none$}.gs-snippet{color:#AAA$}.gs-visibleUrl{color:#8A8$}a.gs-title b,.gs-visibleUrl b{color:#EEE$}.gsc-adBlock{display:none$}.gsc-input{~#444$;border-color:#333$;color:#EEE$}" +
 		// Ender's modifications
-		".highlight{border:none$;background:none$}#header-emotes{~#555$}#header-bar-container{border:none$}.paypal-button-tag-content{color:#EEE$}.numlikes{color:#EEE$}.gsc-input-box{~#444$;border-color:#333$}.gsc-completion-container{~#333$;border-color:#000$}.gsc-completion-selected{~#222$}.gsc-completion-container b{color:#AAA$}.alert-nice{~#4a4a4a$}.store-buy-coins{~#777$}.store-buy-coins:hover{~#666$}.store-buy-coins>h2,.store-buy-coins>h2>small{color:#EEE$}.store-package-selector{~#888$}.store-package-selector>label{color:#EEE$}.label-stat{~#444$;color:#EEE$;border:1px solid #555$}.label-stat.disabled{~#333$}.option{~#2e2e2e$;color:#EEE$;border-color:#2e2e2e$}.option.selected{border-color:#e2e2e2$}.sleek-select{~#2e2e2e$}select{color:#EEE$}.modal-note{color:#EEE$}.vue-dialog-button{~#555$;border:none$}.vue-dialog-button:hover{~#5a5a5a$}.vue-dialog-buttons{border-top:1px solid #222$}.label-darkgray{padding:.3em .6em .2em$;~#444$;color:#EEE$}.dashboard-item{~#333$}legend{color:#EEE$}.list-group-item{~#444$;color:#EEE$;border:1px solid #222$}.alert-warning{color:#EEE$;~#555$;border-color:#555$}.btn-reaction.active{border:1px solid #2ecc40$}" +
+		".highlight{border:none$;background:none$}#header-emotes{~#555$}#header-bar-container{border:none$}.paypal-button-tag-content{color:#EEE$}.numlikes{color:#EEE$}.gsc-input-box{~#444$;border-color:#333$}.gsc-completion-container{~#333$;border-color:#000$}.gsc-completion-selected{~#222$}.gsc-completion-container b{color:#AAA$}.alert-nice{~#4a4a4a$}.store-buy-coins{~#777$}.store-buy-coins:hover{~#666$}.store-buy-coins>h2,.store-buy-coins>h2>small{color:#EEE$}.store-package-selector{~#888$}.store-package-selector>label{color:#EEE$}.label-stat{~#444$;color:#EEE$;border:1px solid #555$}.label-stat.disabled{~#333$}.option{~#2e2e2e$;color:#EEE$;border-color:#2e2e2e$}.option.selected{border-color:#e2e2e2$}.sleek-select{~#2e2e2e$}select{color:#EEE$}.modal-note{color:#EEE$}.vue-dialog-button{~#555$;border:none$}.vue-dialog-button:hover{~#5a5a5a$}.vue-dialog-buttons{border-top:1px solid #222$}.label-darkgray{padding:.3em .6em .2em$;~#444$;color:#EEE$}.dashboard-item{~#333$}legend{color:#EEE$}.list-group-item{~#444$;color:#EEE$;border:1px solid #222$}.alert-warning{color:#EEE$;~#555$;border-color:#555$}.btn-reaction.active{border:1px solid #2ecc40$}.bg-shadow-box{~#333$}.btn-gray{~#222$;border:none$}.btn-gray:hover{color:#EEE$;~#1a1a1a$}" +
 		// We have entered specificity hell...
 		"a.anbt_replaypanel:hover{color:#8af$}" +
 		".anbt_favedpanel{color:#d9534f$}" +
