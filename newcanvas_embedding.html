@@ -2606,8 +2606,6 @@ function bindEvents()
   };
   var touchMove = function(e)
   {
-    if (navigator.userAgent.indexOf('Firefox') > -1 && navigator.userAgent.indexOf("Mobile") > -1) e.preventDefault();
-    if (navigator.userAgent.indexOf('Firefox') > -1 && navigator.userAgent.indexOf("Android") > -1) e.preventDefault();
     if (e.touches.length === 1)
     {
       simulateSingleTouchStart();
@@ -2622,8 +2620,6 @@ function bindEvents()
   };
   var touchEnd = function(e)
   {
-    if (navigator.userAgent.indexOf('Firefox') > -1 && navigator.userAgent.indexOf("Mobile") > -1) e.preventDefault();
-    if (navigator.userAgent.indexOf('Firefox') > -1 && navigator.userAgent.indexOf("Android") > -1) e.preventDefault();
     if (e.touches.length === 0)
     {
       simulateSingleTouchStart();
@@ -2664,8 +2660,6 @@ function bindEvents()
       lastTouch = e.touches[0];
       window.addEventListener('touchend', touchEnd);
       window.addEventListener('touchmove', touchMove);
-      if (navigator.userAgent.indexOf('Firefox') > -1 && navigator.userAgent.indexOf("Mobile") > -1) e.preventDefault();
-      if (navigator.userAgent.indexOf('Firefox') > -1 && navigator.userAgent.indexOf("Android") > -1) e.preventDefault();
     } else {
       // Enable two-finger undo and redo:
       // 1     o    o
