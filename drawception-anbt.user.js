@@ -15,7 +15,7 @@
 function wrapped() {
 
 var SCRIPT_VERSION = "1.142.2018.09";
-var NEWCANVAS_VERSION = 44; // Increase to update the cached canvas
+var NEWCANVAS_VERSION = 45; // Increase to update the cached canvas
 var SITE_VERSION = "a84e6c5f"; // Last seen site version
 
 // == DEFAULT OPTIONS ==
@@ -160,6 +160,7 @@ function setupNewCanvas(insandbox, url, origpage)
     //localStorage.setItem("anbt_canvasHTML", atob(""));
     return;
   }
+  var inforum = url.match(/forums\//);
   // Save friend game id if any
   var friendgameid = url.match(/play\/(.+)\//);
 
@@ -175,12 +176,14 @@ function setupNewCanvas(insandbox, url, origpage)
 
   // Show normal address
   var normalurl;
-  if (insandbox)
+  if (insandbox && !inforum)
   {
     normalurl = "/sandbox/";
     if (panelid) normalurl += "#" + panelid[1];
   } else if (incontest) {
     normalurl = "/contests/play/";
+  } else if (inforum) {
+    normalurl = url.match(/\/forums\/?.+/);
   } else {
     normalurl = "/play/";
     if (friendgameid) normalurl += friendgameid[1] + "/";
@@ -190,11 +193,43 @@ function setupNewCanvas(insandbox, url, origpage)
     if (location.pathname + location.hash != normalurl) history.pushState({}, document.title, normalurl);
   } catch(e) {};
 
+  if (inforum) {
+    if (document.querySelector(".v--modal-overlay")) document.querySelector(".v--modal-overlay").outerHTML = "";
+    var div = document.querySelector(".wrapper").children[1];
+    var iframe = document.createElement("iframe");
+    var modalOverlay = document.createElement("div");
+    modalOverlay.setAttribute("class", "v--modal-overlay")
+    iframe.id = "iframe";
+    iframe.setAttribute("class", "v--modal-background-click");
+    modalOverlay.append(iframe);
+    div.append(modalOverlay);
+    iframe = iframe.contentWindow;
+    iframe.document.open();
+    iframe.anbtReady = function() {
+      iframe.inforum = inforum;
+      iframe.insandbox = insandbox;
+      iframe.incontest = incontest;
+      iframe.options = options;
+      iframe.alarmSoundOgg = sound;
+      iframe.vertitle = vertitle;
+    }
+    iframe.document.write(canvasHTML);
+    iframe.document.close();
+    var iframeFinish = setInterval(function() {
+      if (typeof document.getElementById("iframe").contentWindow.ID === "undefined") return;
+      var script = document.createElement("script");
+      script.textContent = "(" + needToGoDeeper.toString() + ")();";
+      iframe.document.body.append(script);
+      clearInterval(iframeFinish);
+    }, 100);
+    return;
+  }
   document.open();
   window.anbtReady = function()
   {
     if (friendgameid) window.friendgameid = friendgameid[1];
     if (panelid) window.panelid = panelid[1];
+    window.inforum = inforum;
     window.insandbox = insandbox;
     window.incontest = incontest;
     window.options = options;
@@ -261,7 +296,7 @@ function extractInfoFromHTML(html)
     caption: drawapp.getAttribute("phrase"),
     image: drawapp.getAttribute("img_url"),
     palette: drawapp.getAttribute("theme_id"),
-    bgbutton: drawapp.getAttribute(":bg_layer") == "1",
+    bgbutton: drawapp.getAttribute(":bg_layer") == "true",
     playerurl: "/profile/",
     avatar: null,
     coins: "-",
@@ -369,6 +404,9 @@ function handleCommonParameters()
   ID("infogames").innerHTML = gameinfo.pubgames;
   ID("infofriendgames").innerHTML = gameinfo.friendgames || 0;
   ID("infonotifications").innerHTML = gameinfo.notifications;
+  if (inforum) {
+    document.querySelector(".headerright").hidden = true;
+  }
 }
 
 function handleSandboxParameters()
@@ -611,6 +649,22 @@ function bindCanvasEvents()
     return anbt.unsaved && !confirm("You haven't saved the drawing. Abandon?");
   };
 
+  if (window.inforum) {
+    ID("quit").addEventListener("click", function (e) {
+      e.preventDefault;
+      window.top.location.href = "https://drawception.com/";
+    })
+    var backForum = document.createElement("button");
+    backForum.href = "/";
+    backForum.setAttribute("class", "submit exit");
+    backForum.title = "Exit";
+    backForum.textContent = "Exit";
+    backForum.addEventListener("click", function (e) {
+      e.preventDefault;
+      window.frameElement.ownerDocument.querySelector(".v--modal-overlay").outerHTML = "";
+    })
+    ID("submit").parentNode.insertBefore(backForum, ID("submit").nextSibling);
+  }
   ID("exit").addEventListener('click', function()
   {
     if (window.incontest)
@@ -2150,7 +2204,9 @@ function betterForum()
       ".anbt_necropost1:after {background: none}" +
       ".anbt_necropost2:after {background-repeat: no-repeat; background-position: center}" +
       ".anbt_necropost3:after {}" +
-      ".anbt_necropost span.muted:after {content: ' (old post)'}"
+      ".anbt_necropost span.muted:after {content: ' (old post)'}" +
+      "iframe {border: none}" +
+      ".v--modal-overlay .v--modal-background-click {padding-bottom: 0}"
     );
   }
   // Linkify the links
@@ -2353,6 +2409,19 @@ function betterForum()
     if (!hidden) tempUnhideLink.hide();
     $(".forum-thread").first().before(tempUnhideLink);
   }
+  $(".btn.btn-default").click(function(e){
+    if ($(this).text().match(/Draw/)) {
+      if (!$(this).hasClass("click")) {
+        var delModal = setInterval(function () {
+          if (!document.querySelector(".v--modal-overlay")) return;
+          document.querySelector(".v--modal-overlay").outerHTML = "";
+          clearInterval(delModal);
+        }, 100)
+        $(this).addClass("click")
+      }
+      setupNewCanvas(true, document.location.href);
+    }
+  });
 }
 
 function loadScriptSettings()
@@ -2964,6 +3033,7 @@ localStorage.setItem("gpe_darkCSS",
   ".gsc-control-cse{~#444$;border-color:#333$}.gsc-above-wrapper-area,.gsc-result{border:none$}.gs-snippet{color:#AAA$}.gs-visibleUrl{color:#8A8$}a.gs-title b,.gs-visibleUrl b{color:#EEE$}.gsc-adBlock{display:none$}.gsc-input{~#444$;border-color:#333$;color:#EEE$}" +
   ".highlight{border:none$;background:#454$}#header-emotes{~#555$}#header-bar-container{border:none$}.paypal-button-tag-content{color:#EEE$}.numlikes{color:#EEE$}.gsc-input-box{~#444$;border-color:#333$}.gsc-completion-container{~#333$;border-color:#000$}.gsc-completion-selected{~#222$}.gsc-completion-container b{color:#AAA$}.alert-nice{~#4a4a4a$}.store-buy-coins{~#777$}.store-buy-coins:hover{~#666$}.store-buy-coins>h2,.store-buy-coins>h2>small{color:#EEE$}.store-package-selector{~#888$}.store-package-selector>label{color:#EEE$}.label-stat{~#444$;color:#EEE$;border:1px solid #555$}.label-stat.disabled{~#333$}.option{~#2e2e2e$;color:#EEE$;border-color:#2e2e2e$}.option.selected{border-color:#e2e2e2$}.sleek-select{~#2e2e2e$}select{color:#EEE$}.modal-note{color:#EEE$}.vue-dialog-button{~#555$;border:none$}.vue-dialog-button:hover{~#5a5a5a$}.vue-dialog-buttons{border-top:1px solid #222$}.dashboard-item{~#333$}legend{color:#EEE$}.list-group-item{~#444$;color:#EEE$;border:1px solid #222$}.alert-warning{color:#EEE$;~#555$;border-color:#555$}.btn-reaction.active{border:1px solid #EEE$}.bg-shadow-box{~#333$}.btn-gray{~#222$;border:none$}.btn-gray:hover{color:#EEE$;~#1a1a1a$}.btn-bright{~#333$;color:#EEE$}" +
   ".player-name-new{color:#33b73f$}.gsc-tabsArea>div{overflow:hidden$}.gs-image-popup-box{~#333$;border-color:#222$}.gs-size{color:#6f6f6f$}.gsc-result-info{color:#EEE$}.gsc-refinementsArea{border:none$}.gsc-tabsArea{border-bottom-color:#333$}.gsc-cursor-page{color:#EEE$}.gsc-cursor-current-page{color:#AAA$}.profile-nav>.disabled>a{color:#555$;~#3a3a3a$}.profile-nav>.disabled>a:hover{~#3a3a3a$}" +
+  ".alert-info{color:#EEE$;~#333$;border-color:#222$}.appriseOuter{~#444$;border-color:#222$;box-shadow:0 3px 7px #333}.appriseInner{color:#EEE$;text-shadow:none}.category-header{~#333$;border-color:#222$}" +
   // We have entered specificity hell...
   "a.anbt_replaypanel:hover{color:#8af$}" +
   ".anbt_favedpanel{color:#d9534f$}" +
