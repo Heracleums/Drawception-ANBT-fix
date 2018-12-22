@@ -14,7 +14,7 @@
 
 const wrapped = () => {
   const SCRIPT_VERSION = '1.142.2018.09'
-  const NEWCANVAS_VERSION = 45 // Increase to update the cached canvas
+  const NEWCANVAS_VERSION = 46 // Increase to update the cached canvas
   const SITE_VERSION = 'a84e6c5f' // Last seen site version
 
   // == DEFAULT OPTIONS ==
@@ -518,7 +518,7 @@ const wrapped = () => {
       updateTimer()
       window.timesup = false
 
-      function timerCallback(s) {
+      const timerCallback = (s) => {
         if (alarm && !window.playedWarningSound && s <= (info.blitz ? 5 : 61) && s > 0) {
           alarm.play()
           window.playedWarningSound = true
@@ -546,7 +546,7 @@ const wrapped = () => {
           document.title = `[${`0${Math.floor(s / 60)}`.slice(-2)}:${`0${Math.floor(s % 60)}`.slice(-2)}] Playing Drawception`
         }
       }
-
+      window.timerCallback = timerCallback
       if ((options.timeoutSound && !info.blitz) || (options.timeoutSoundBlitz && info.blitz)) {
         window.playedWarningSound = false
         const alarm = new Audio(window.alarmSoundOgg)
