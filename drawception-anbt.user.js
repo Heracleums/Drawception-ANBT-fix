@@ -15,7 +15,7 @@
 function wrapped() {
 
 var SCRIPT_VERSION = "1.142.2018.09";
-var NEWCANVAS_VERSION = 45; // Increase to update the cached canvas
+var NEWCANVAS_VERSION = 46; // Increase to update the cached canvas
 var SITE_VERSION = "a84e6c5f"; // Last seen site version
 
 // == DEFAULT OPTIONS ==
@@ -521,7 +521,8 @@ function handlePlayParameters()
     theme_juice: ["Juice", "#fced95"],
     theme_tropical: ["Tropical", "#2f0946"],
     theme_grimby_grays: ["Grimby Grays", "#f0efeb"],
-    theme_fury_road: ["Fury Road", "#893f1d"]
+    theme_fury_road: ["Fury Road", "#893f1d"],
+    theme_candy: ["Candy", "#793abd"],
   };
   var pal = info.palette;
   var paldata;
