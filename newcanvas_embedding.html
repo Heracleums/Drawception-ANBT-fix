@@ -3218,7 +3218,7 @@ function updateTimer()
   var s = (timerStart - Date.now()) / 1000;
   try
   {
-    if (window.timerCallback) window.timerCallback(s);
+    if (timerCallback) timerCallback(s);
   }
   catch(e) {}
   s = Math.abs(s);

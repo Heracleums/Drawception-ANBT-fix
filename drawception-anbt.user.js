@@ -220,769 +220,772 @@ const wrapped = () => {
     document.close()
   }
 
-  // To be inserted on new canvas page.
-  const needToGoDeeper = () => {
-    const sendGet = (url, onloadfunc, onerrorfunc, ontimeoutfunc) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open('GET', url)
-      xhr.timeout = 15000
-      xhr.onload = onloadfunc
-      xhr.onerror = onerrorfunc || onloadfunc
-      xhr.ontimeout = ontimeoutfunc || onerrorfunc || onloadfunc
-      xhr.send()
+  // To be inserted on new canvas page. No jQuery!
+  function needToGoDeeper() {
+
+    function sendGet(url, onloadfunc, onerrorfunc, ontimeoutfunc) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url);
+      xhr.timeout = 15000;
+      xhr.onload = onloadfunc;
+      xhr.onerror = onerrorfunc || onloadfunc;
+      xhr.ontimeout = ontimeoutfunc || onerrorfunc || onloadfunc;
+      xhr.send();
     }
 
-    const sendPost = (url, paramsobj, onloadfunc, onerrorfunc, ontimeoutfunc) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open('POST', url)
-      xhr.timeout = 15000
-      xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8')
-      xhr.onload = onloadfunc
-      xhr.onerror = onerrorfunc || onloadfunc
-      xhr.ontimeout = ontimeoutfunc || onerrorfunc || onloadfunc
-      xhr.send(JSON.stringify(paramsobj))
+    function sendPost(url, paramsobj, onloadfunc, onerrorfunc, ontimeoutfunc) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', url);
+      xhr.timeout = 15000;
+      xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+      xhr.onload = onloadfunc;
+      xhr.onerror = onerrorfunc || onloadfunc;
+      xhr.ontimeout = ontimeoutfunc || onerrorfunc || onloadfunc;
+      xhr.send(JSON.stringify(paramsobj));
     }
 
-    const extractInfoFromHTML = (html) => {
-      const doc = document.implementation.createHTMLDocument('')
-      doc.body.innerHTML = html
-      let el
-      const drawapp = doc.querySelector('draw-app') ||
-        doc.querySelector('describe') || {
-          getAttribute: () => false,
+    function extractInfoFromHTML(html) {
+      var doc = document.implementation.createHTMLDocument("");
+      doc.body.innerHTML = html;
+      var el;
+      var drawapp = doc.querySelector("draw-app") || doc.querySelector("describe");
+      if (!drawapp) drawapp = {
+        getAttribute: function () {
+          return false
         }
-      const getel = (query) => {
-        el = doc.querySelector(query)
-        return el
+      };
+
+      function getel(query) {
+        el = doc.querySelector(query);
+        return el;
       }
       return {
-        error: getel('.error') ? el.textContent.trim() : false,
-        gameid: drawapp.getAttribute('game_token'),
-        blitz: drawapp.getAttribute(':blitz_mode') === 'true',
-        nsfw: drawapp.getAttribute(':nsfw') === 'true',
-        friend: drawapp.getAttribute(':game_public') !== 'true',
-        drawfirst: drawapp.getAttribute(':draw_first') === 'true',
-        timeleft: drawapp.getAttribute(':seconds') * 1,
-        caption: drawapp.getAttribute('phrase'),
-        image: drawapp.getAttribute('img_url'),
-        palette: drawapp.getAttribute('theme_id'),
-        bgbutton: drawapp.getAttribute(':bg_layer') === 'true',
-        playerurl: '/profile/',
+        error: getel(".error") ? el.textContent.trim() : false,
+        gameid: drawapp.getAttribute("game_token"),
+        blitz: drawapp.getAttribute(":blitz_mode") == "true",
+        nsfw: drawapp.getAttribute(":nsfw") == "true",
+        friend: drawapp.getAttribute(":game_public") != "true",
+        drawfirst: drawapp.getAttribute(":draw_first") == "true",
+        timeleft: drawapp.getAttribute(":seconds") * 1,
+        caption: drawapp.getAttribute("phrase"),
+        image: drawapp.getAttribute("img_url"),
+        palette: drawapp.getAttribute("theme_id"),
+        bgbutton: drawapp.getAttribute(":bg_layer") == "true",
+        playerurl: "/profile/",
         avatar: null,
-        coins: '-',
-        pubgames: '-',
-        friendgames: '-',
-        notifications: '-',
-        drawinglink: getel('.gamepanel img') ? el.getAttribute('src') : false,
-        drawingbylink: getel('#main p a') ? [el.textContent.trim(), el.getAttribute('href')] : false,
-        drawncaption: getel('h1.game-title') ? el.textContent.trim() : false,
-        notloggedin: getel('form.form-login') !== null,
+        coins: "-",
+        pubgames: "-",
+        friendgames: "-",
+        notifications: "-",
+        drawinglink: getel(".gamepanel img") ? el.getAttribute("src") : false,
+        drawingbylink: getel("#main p a") ? [el.textContent.trim(), el.getAttribute("href")] : false,
+        drawncaption: getel("h1.game-title") ? el.textContent.trim() : false,
+        notloggedin: getel("form.form-login") != null,
         limitreached: false, // ??? appears to be redirecting to /play/limit/ which gives "game not found" error
-        html,
-      }
+        html: html,
+      };
     }
 
-    const getParametersFromPlay = () => {
-      const url = window.incontest ? '/contests/play/' : '/play/'
+    function getParametersFromPlay() {
+      var url = window.incontest ? "/contests/play/" : "/play/";
       if (window.friendgameid) {
-        url += `${window.friendgameid}/`
-        window.friendgameid = false
+        url += window.friendgameid + "/";
+        window.friendgameid = false;
       }
       try {
-        if (location.pathname !== url) history.replaceState({}, null, url)
-      } catch (e) {}
+        if (location.pathname != url) history.replaceState({}, null, url);
+      } catch (e) {};
       if (window.origpage) {
-        window.gameinfo = extractInfoFromHTML(window.origpage)
-        handlePlayParameters()
-        window.origpage = null
-        return
+        window.gameinfo = extractInfoFromHTML(window.origpage);
+        handlePlayParameters();
+        window.origpage = null;
+        return;
       }
       // On Firefox, requesting "/play/" url would immediately return a cached error.
       // Firefox, WTF? So we use cache-busting here.
-      sendGet(
-        `${url}?${Date.now()}`,
-        function () {
-          const html = this.responseText
-          window.gameinfo =
-            html === '' ? {
-              error: 'Server returned a blank response :(',
-            } :
-            extractInfoFromHTML(html)
-          handlePlayParameters()
-        },
-        function () {
+      sendGet(url + "?" + Date.now(), function () {
+        var html = this.responseText;
+        if (html == "") {
           window.gameinfo = {
-            error: `Server error: ${this.statusText}`,
-          }
-          handlePlayParameters()
-        },
-      )
+            error: "Server returned a blank response :("
+          };
+        } else {
+          window.gameinfo = extractInfoFromHTML(html);
+        }
+        handlePlayParameters();
+      }, function () {
+        window.gameinfo = {
+          error: "Server error: " + this.statusText
+        };
+        handlePlayParameters();
+      });
     }
 
-    const exitToSandbox = () => {
+    function exitToSandbox() {
       if (window.incontext && !window.drawing_aborted) {
-        sendPost(
-          '/contests/exit.json', {
-            game_token: window.gameinfo.gameid,
-          },
-          () => {
-            alert('You have missed your contest.')
-          },
-        )
+        sendPost("/contests/exit.json", {
+          game_token: window.gameinfo.gameid
+        }, function () {
+          alert("You have missed your contest.");
+        });
       }
       if (window.gameinfo.drawfirst && !window.drawing_aborted) {
-        sendPost(
-          '/play/abort-start.json', {
-            game_token: window.gameinfo.gameid,
-          },
-          () => {
-            alert('You have missed your Draw First game.\nIt has been aborted.')
-          },
-          () => {
-            alert('You have missed your Draw First game.\nI tried aborting it, but an error occured. :(')
-          },
-        )
+        sendPost("/play/abort-start.json", {
+          game_token: window.gameinfo.gameid
+        }, function () {
+          alert("You have missed your Draw First game.\nIt has been aborted.");
+        }, function () {
+          alert("You have missed your Draw First game.\nI tried aborting it, but an error occured. :(");
+        });
       }
-      let timerStart = Date.now()
-      ID('newcanvasyo').className = 'sandbox'
-      let timerCallback = () => {}
-      updateTimer()
-      document.title = 'Sandbox - Drawception'
-      ID('gamemode').innerHTML = 'Sandbox'
-      ID('headerinfo').innerHTML = `Sandbox with ${vertitle}`
+      timerStart = Date.now();
+      ID("newcanvasyo").className = "sandbox";
+      timerCallback = function () {};
+      updateTimer();
+      document.title = "Sandbox - Drawception";
+      ID("gamemode").innerHTML = "Sandbox";
+      ID("headerinfo").innerHTML = 'Sandbox with ' + vertitle;
       try {
-        history.replaceState({}, null, '/sandbox/')
-      } catch (e) {}
-      anbt.Unlock()
+        history.replaceState({}, null, "/sandbox/");
+      } catch (e) {};
+      anbt.Unlock();
     }
 
-    const handleCommonParameters = () => {
+    function handleCommonParameters() {
       if (gameinfo.notloggedin) {
-        ID('start').parentNode.innerHTML = '<a href="/login" class="headerbutton active">Login</a> <a href="/connect/" class="headerbutton active">Register</a>'
-        return
+        ID("start").parentNode.innerHTML = '<a href="/login" class="headerbutton active">Login' +
+          '</a> <a href="/connect/" class="headerbutton active">Register</a>';
+        return;
       }
-      if (gameinfo.avatar) ID('infoavatar').src = gameinfo.avatar
-      ID('infoprofile').href = gameinfo.playerurl
-      ID('infocoins').innerHTML = gameinfo.coins
-      ID('infogames').innerHTML = gameinfo.pubgames
-      ID('infofriendgames').innerHTML = gameinfo.friendgames || 0
-      ID('infonotifications').innerHTML = gameinfo.notifications
-      if (inforum) document.querySelector('.headerright').hidden = true
+      if (gameinfo.avatar) {
+        ID("infoavatar").src = gameinfo.avatar;
+      }
+      ID("infoprofile").href = gameinfo.playerurl;
+      ID("infocoins").innerHTML = gameinfo.coins;
+      ID("infogames").innerHTML = gameinfo.pubgames;
+      ID("infofriendgames").innerHTML = gameinfo.friendgames || 0;
+      ID("infonotifications").innerHTML = gameinfo.notifications;
+      if (inforum) {
+        document.querySelector(".headerright").hidden = true;
+      }
     }
 
-    const handleSandboxParameters = () => {
+    function handleSandboxParameters() {
       if (gameinfo.drawingbylink) {
-        const playername = gameinfo.drawingbylink[0]
-        const playerlink = gameinfo.drawingbylink[1]
-        ID('headerinfo').innerHTML = `<a href="http://grompe.org.ru/drawit/#drawception/${location.hash.substr(1)}" title="Public replay link for sharing">Drawing</a> by <a href="${playerlink}">${playername}</a>`
-        document.title = `${playername}'s drawing - Drawception`
+        var playername = gameinfo.drawingbylink[0];
+        var playerlink = gameinfo.drawingbylink[1];
+        var replaylink = '<a href="http://grompe.org.ru/drawit/#drawception/' +
+          location.hash.substr(1) + '" title="Public replay link for sharing">Drawing</a>';
+        ID("headerinfo").innerHTML = replaylink + ' by <a href="' + playerlink + '">' + playername + '</a>';
+        document.title = playername + "'s drawing - Drawception";
         if (gameinfo.drawncaption) {
-          ID('drawthis').innerHTML = `"${gameinfo.drawncaption}"`
-          ID('drawthis').classList.remove('onlyplay')
-          ID('emptytitle').classList.add('onlyplay')
+          ID("drawthis").innerHTML = '"' + gameinfo.drawncaption + '"';
+          ID("drawthis").classList.remove("onlyplay");
+          ID("emptytitle").classList.add("onlyplay");
         }
-        if (options.autoplay) anbt.Play()
+        if (options.autoplay) anbt.Play();
       } else {
-        ID('headerinfo').innerHTML = `Sandbox with ${vertitle}`
-        ID('drawthis').classList.add('onlyplay')
+        ID("headerinfo").innerHTML = 'Sandbox with ' + vertitle;
+        ID("drawthis").classList.add("onlyplay");
       }
 
-      handleCommonParameters()
+      handleCommonParameters();
     }
 
-    const handlePlayParameters = () => {
-      const info = window.gameinfo
-      console.log(info)
-      ID('skip').disabled = info.drawfirst || window.incontest
-      ID('report').disabled = info.drawfirst || window.incontest
-      ID('exit').disabled = false
-      ID('start').disabled = false
-      ID('bookmark').disabled = info.drawfirst || window.incontest
-      ID('options').disabled = true // Not implemented yet!
-      ID('timeplus').disabled = window.incontest
-      ID('submit').disabled = false
+    function handlePlayParameters() {
+      var info = window.gameinfo;
 
-      ID('headerinfo').innerHTML = `Playing with ${vertitle}`
-      ID('drawthis').classList.add('onlyplay')
-      ID('emptytitle').classList.remove('onlyplay')
+      ID("skip").disabled = info.drawfirst || window.incontest;
+      ID("report").disabled = info.drawfirst || window.incontest;
+      ID("exit").disabled = false;
+      ID("start").disabled = false;
+      ID("bookmark").disabled = info.drawfirst || window.incontest;
+      ID("options").disabled = true; // Not implemented yet!
+      ID("timeplus").disabled = window.incontest;
+      ID("submit").disabled = false;
 
-      window.submitting = false
-      window.drawing_aborted = false
+      ID("headerinfo").innerHTML = 'Playing with ' + vertitle;
+      ID("drawthis").classList.add("onlyplay");
+      ID("emptytitle").classList.remove("onlyplay");
+
+      window.submitting = false;
+      window.drawing_aborted = false;
 
       if (info.error) {
-        alert(`Play Error:\n${info.error}`)
-        return exitToSandbox()
+        alert("Play Error:\n" + info.error);
+        return exitToSandbox();
       }
       if (info.limitreached) {
-        alert('Play limit reached!')
-        return exitToSandbox()
+        alert("Play limit reached!");
+        return exitToSandbox();
       }
 
       if (window.incontest) {
-        ID('gamemode').innerHTML = 'Contest'
+        ID("gamemode").innerHTML = "Contest";
       } else {
-        ID('gamemode').innerHTML = `${(info.friend ? 'Friend ' : 'Public ') + (info.nsfw ? 'Not Safe For Work (18+) ' : 'safe for work ') + (info.blitz ? 'BLITZ ' : '')}Game`
+        ID("gamemode").innerHTML = (info.friend ? "Friend " : "Public ") +
+          (info.nsfw ? "Not Safe For Work (18+) " : "safe for work ") +
+          (info.blitz ? "BLITZ " : "") +
+          "Game";
       }
-      ID('gamemode').innerHTML = window.incontest ? 'Contest' : `${(info.friend ? 'Friend ' : 'Public ') + (info.nsfw ? 'Not Safe For Work (18+) ' : 'safe for work ') + (info.blitz ? 'BLITZ ' : '')}Game`
+      ID("drawthis").innerHTML = info.caption || info.drawfirst && "(Start your game!)" || "";
+      ID("tocaption").src = "";
 
-      ID('drawthis').innerHTML = info.caption || (info.drawfirst && '(Start your game!)') || ''
-      ID('tocaption').src = ''
-
-      const newcanvas = ID('newcanvasyo')
-      newcanvas.className = 'play'
-      if (info.friend) newcanvas.classList.add('friend')
-      ID('palettechooser').className = info.friend ? '' : 'onlysandbox'
-      if (info.nsfw) newcanvas.classList.add('nsfw')
-      if (info.blitz) newcanvas.classList.add('blitz')
-      newcanvas.classList.add(info.image ? 'captioning' : 'drawing')
+      var newcanvas = ID("newcanvasyo");
+      newcanvas.className = "play";
+      if (info.friend) newcanvas.classList.add("friend");
+      ID("palettechooser").className = info.friend ? "" : "onlysandbox";
+      if (info.nsfw) newcanvas.classList.add("nsfw");
+      if (info.blitz) newcanvas.classList.add("blitz");
+      newcanvas.classList.add(info.image ? "captioning" : "drawing");
 
       // Clear
-      if (anbt.isStroking) anbt.StrokeEnd()
-      anbt.Unlock()
-      for (let i = anbt.svg.childNodes.length - 1; i > 0; i--) anbt.svg.removeChild(anbt.svg.childNodes[i])
-      anbt.Seek(0)
-      anbt.MoveSeekbar(1)
-      anbt.unsaved = false
-
-      const palettemap = {
-        default: ['Normal', '#fffdc9'],
-        theme_holiday: ['Holiday', '#ffffff'],
-        theme_thanksgiving: ['Thanksgiving', '#f5e9ce'],
-        halloween: ['Halloween', '#444444'],
-        theme_cga: ['CGA', '#ffff55'],
-        shades_of_grey: ['Grayscale', '#e9e9e9'],
-        theme_bw: ['Black and white', '#ffffff'],
-        theme_gameboy: ['Gameboy', '#9bbc0f'],
-        theme_neon: ['Neon', '#00abff'],
-        theme_sepia: ['Sepia', '#ffe2c4'],
-        theme_valentines: ["Valentine's", '#ffccdf'],
-        theme_blues: ['the blues', '#295c6f'],
-        theme_spring: ['Spring', '#ffffff'],
-        theme_beach: ['Beach', '#f7dca2'],
-        theme_beach_2: ['Tide Pool', '#2271a2'],
-        theme_coty_2016: ['Colors of 2016', '#648589'],
-        theme_bee: ['Bee', '#ffffff'],
-        theme_coty_2017: ['Colors of 2017', '#5f7278'],
-        theme_fire_ice: ['Fire and Ice', '#040526'],
-        theme_coty_2018: ['Canyon Sunset', '#2e1b50'],
-        theme_juice: ['Juice', '#fced95'],
-        theme_tropical: ['Tropical', '#2f0946'],
-        theme_grimby_grays: ['Grimby Grays', '#f0efeb'],
-        theme_fury_road: ['Fury Road', '#893f1d'],
-        theme_candy: ['Candy', '#793abd'],
-        theme_holiday_2: ['Holiday2', '#f6f6f6'],
+      if (anbt.isStroking) anbt.StrokeEnd();
+      anbt.Unlock();
+      for (var i = anbt.svg.childNodes.length - 1; i > 0; i--) {
+        var el = anbt.svg.childNodes[i];
+        anbt.svg.removeChild(el);
       }
-      const pal = info.palette
-      let paldata
+      anbt.Seek(0);
+      anbt.MoveSeekbar(1);
+      anbt.unsaved = false;
+
+      var palettemap = {
+        "default": ["Normal", "#fffdc9"],
+        theme_holiday: ["Holiday", "#ffffff"],
+        theme_thanksgiving: ["Thanksgiving", "#f5e9ce"],
+        halloween: ["Halloween", "#444444"],
+        theme_cga: ["CGA", "#ffff55"],
+        shades_of_grey: ["Grayscale", "#e9e9e9"],
+        theme_bw: ["Black and white", "#ffffff"],
+        theme_gameboy: ["Gameboy", "#9bbc0f"],
+        theme_neon: ["Neon", "#00abff"],
+        theme_sepia: ["Sepia", "#ffe2c4"],
+        theme_valentines: ["Valentine's", "#ffccdf"],
+        theme_blues: ["the blues", "#295c6f"],
+        theme_spring: ["Spring", "#ffffff"],
+        theme_beach: ["Beach", "#f7dca2"],
+        theme_beach_2: ["Tide Pool", "#2271a2"],
+        theme_coty_2016: ["Colors of 2016", "#648589"],
+        theme_bee: ["Bee", "#ffffff"],
+        theme_coty_2017: ["Colors of 2017", "#5f7278"],
+        theme_fire_ice: ["Fire and Ice", "#040526"],
+        theme_coty_2018: ["Canyon Sunset", "#2e1b50"],
+        theme_juice: ["Juice", "#fced95"],
+        theme_tropical: ["Tropical", "#2f0946"],
+        theme_grimby_grays: ["Grimby Grays", "#f0efeb"],
+        theme_fury_road: ["Fury Road", "#893f1d"],
+        theme_candy: ["Candy", "#793abd"],
+      };
+      var pal = info.palette;
+      var paldata;
       if (!info.image) {
         // Drawing
-        if (pal === 'theme_roulette') {
+        if (pal == "theme_roulette") {
           // Since site update, the game reports already chosen palette,
           // but apparently this still happens sometimes. ???
-          alert("Warning: Drawception roulette didn't give a theme. ANBT will choose a random palette.")
-          delete palettes.Roulette
-          const k = Object.keys(palettemap)
-          const n = k[(k.length * Math.random()) << 0]
-          palettes.Roulette = palettes[palettemap[n][0]]
-          paldata = ['Roulette', palettemap[n][1]]
+          alert("Warning: Drawception roulette didn't give a theme. ANBT will choose a random palette.");
+          delete palettes.Roulette;
+          var k = Object.keys(palettemap);
+          var n = k[k.length * Math.random() << 0];
+          palettes.Roulette = palettes[palettemap[n][0]];
+          paldata = ["Roulette", palettemap[n][1]];
         } else {
-          if (pal) paldata = palettemap[pal.toLowerCase()]
+          if (pal) paldata = palettemap[pal.toLowerCase()];
         }
         if (!paldata) {
           if (!pal) {
-            alert('Error, please report! Failed to extract the palette.\nAre you using the latest ANBT version?')
+            alert("Error, please report! Failed to extract the palette.\nAre you using the latest ANBT version?");
           } else {
-            alert(`Error, please report! Unknown palette: '${pal}'.\nAre you using the latest ANBT version?`)
+            alert("Error, please report! Unknown palette: '" + pal + "'.\nAre you using the latest ANBT version?");
           }
           // Prevent from drawing with a wrong palette
-          anbt.Lock()
-          ID('submit').disabled = true
+          anbt.Lock();
+          ID("submit").disabled = true;
         } else {
-          setPaletteByName(paldata[0])
-          anbt.SetBackground(paldata[1])
-          anbt.color = [palettes[paldata[0]][0], 'eraser']
-          updateColorIndicators()
+          setPaletteByName(paldata[0]);
+          anbt.SetBackground(paldata[1]);
+          anbt.color = [palettes[paldata[0]][0], "eraser"];
+          updateColorIndicators();
         }
-        ID('setbackground').hidden = !info.bgbutton
+        ID("setbackground").hidden = !info.bgbutton;
       } else {
         // Caption
-        ID('tocaption').src = info.image.length <= 30 ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAD6AQMAAAAho+iwAAAABlBMVEWAQED///94jotxAAABiklEQVR4Xu3W0UrCUBjA8eOO5CLK7VxLzDWFrjK6Eaha8FHuppfwBRJvdjlMIK/K3qA3OZBBd/UIm9UL2O2inMJBptNuog/6/h4Q2Y8J387Y2KIoiqIoiqIoiuIxXnbI5cmXSiJjD3LmFyrGY46PqVAx/HPDv9/w3wsJTTgapuDkcEIQMFxzo937S8+F5OkWI2IKymQl3yiZ6j8zYsRY6vUYDcOfGkuMknE5/aQAMczX9O+iKIrKJWuSxliQqT61hOmMucsYK6uzLWfDenF34EXhOX+s377KLCZcs1bxhNXQqnAvrExWM8vvY3amORCNsplu2nZPWKdj1tecTHZZLA97ZnjBB/XrkWIZWT+bsmTowp+7FHSnyMi7CpuMrWcwNsMMxnJzrCUbwwq/2/MLJb8lP4L2zVHJ35Bp1rE8Uc2bALoNHQvcoNG3Yf5Pm6EnHG50Ye0YmiG4V08LmWD7wmF9gJwFgoHbnZzNSDE/Co3orSB2YGsbovAgaD9vlkB/WbkbdQVWMNxR1Ddnf4eSZpHZYAAAAABJRU5ErkJggg==' : info.image
-        ID('caption').value = ''
-        ID('caption').focus()
-        ID('caption').setAttribute('maxlength', 45)
-        ID('usedchars').textContent = '45'
+        if (info.image.length <= 30) {
+          // Broken drawing =(
+          ID("tocaption").src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAD6AQMAAAAho+iwAAAABlBMVEWAQED///94jotxAAABiklEQVR4Xu3W0UrCUBjA8eOO5CLK7VxLzDWFrjK6Eaha8FHuppfwBRJvdjlMIK/K3qA3OZBBd/UIm9UL2O2inMJBptNuog/6/h4Q2Y8J387Y2KIoiqIoiqIoiuIxXnbI5cmXSiJjD3LmFyrGY46PqVAx/HPDv9/w3wsJTTgapuDkcEIQMFxzo937S8+F5OkWI2IKymQl3yiZ6j8zYsRY6vUYDcOfGkuMknE5/aQAMczX9O+iKIrKJWuSxliQqT61hOmMucsYK6uzLWfDenF34EXhOX+s377KLCZcs1bxhNXQqnAvrExWM8vvY3amORCNsplu2nZPWKdj1tecTHZZLA97ZnjBB/XrkWIZWT+bsmTowp+7FHSnyMi7CpuMrWcwNsMMxnJzrCUbwwq/2/MLJb8lP4L2zVHJ35Bp1rE8Uc2bALoNHQvcoNG3Yf5Pm6EnHG50Ye0YmiG4V08LmWD7wmF9gJwFgoHbnZzNSDE/Co3orSB2YGsbovAgaD9vlkB/WbkbdQVWMNxR1Ddnf4eSZpHZYAAAAABJRU5ErkJggg==";
+        } else {
+          ID("tocaption").src = info.image;
+        }
+        ID("caption").value = "";
+        ID("caption").focus();
+        ID("caption").setAttribute("maxlength", 45);
+        ID("usedchars").textContent = "45";
       }
 
-      let timerStart = Date.now() + 1000 * info.timeleft
-      console.log(timerStart)
-      updateTimer()
-      window.timesup = false
+      timerStart = Date.now() + 1000 * info.timeleft;
+      timerCallback = function () {};
+      updateTimer();
+      window.timesup = false;
 
-      const timerCallback = (s) => {
+      if ((options.timeoutSound && !info.blitz) || (options.timeoutSoundBlitz && info.blitz)) {
+        window.playedWarningSound = false;
+        var alarm = new Audio(window.alarmSoundOgg);
+        alarm.volume = options.timeoutSoundVolume / 100;
+      }
+
+      timerCallback = function (s) {
         if (alarm && !window.playedWarningSound && s <= (info.blitz ? 5 : 61) && s > 0) {
-          alarm.play()
-          window.playedWarningSound = true
+          alarm.play();
+          window.playedWarningSound = true;
         }
         if (s < 1) {
-          document.title = "[TIME'S UP!] Playing Drawception"
+          document.title = "[TIME'S UP!] Playing Drawception";
           if (info.image || window.timesup) {
             // If pressed submit before timer expired, let it process or retry in case of error
             if (!window.submitting) {
               if (info.image) {
-                getParametersFromPlay()
+                getParametersFromPlay();
               } else {
                 // Allow to save the drawing after time's up
-                exitToSandbox()
+                exitToSandbox();
               }
             }
           } else {
-            newcanvas.classList.add('locked')
-            anbt.Lock()
-            timerStart += 15000 // 15 seconds to submit
-            updateTimer()
-            window.timesup = true
+            newcanvas.classList.add("locked");
+            anbt.Lock();
+            timerStart += 15000; // 15 seconds to submit
+            updateTimer();
+            window.timesup = true;
           }
         } else {
-          document.title = `[${`0${Math.floor(s / 60)}`.slice(-2)}:${`0${Math.floor(s % 60)}`.slice(-2)}] Playing Drawception`
+          var m1 = Math.floor(s / 60),
+            s1 = Math.floor(s % 60);
+          m1 = ("0" + m1).slice(-2);
+          s1 = ("0" + s1).slice(-2);
+          document.title = "[" + m1 + ":" + s1 + "] Playing Drawception";
         }
-      }
-      window.timerCallback = timerCallback
-      if ((options.timeoutSound && !info.blitz) || (options.timeoutSoundBlitz && info.blitz)) {
-        window.playedWarningSound = false
-        const alarm = new Audio(window.alarmSoundOgg)
-        alarm.volume = options.timeoutSoundVolume / 100
-      }
+      };
 
-      handleCommonParameters()
+      handleCommonParameters();
     }
 
-    const include = (script, callback) => {
-      const tag = document.createElement('script')
-      tag.src = script
-      tag.onload = callback
-      document.body.appendChild(tag)
+    function include(script, callback) {
+      var tag = document.createElement("script");
+      tag.src = script;
+      tag.onload = callback;
+      document.body.appendChild(tag);
     }
 
-    const decodeHTML = (html) => {
-      const txt = document.createElement('textarea')
-      txt.innerHTML = html
-      return txt.value
+    function decodeHTML(html) {
+      var txt = document.createElement("textarea");
+      txt.innerHTML = html;
+      return txt.value;
     }
 
-    const bindCanvasEvents = () => {
-      const unsavedStopAction = () => anbt.unsaved && !confirm("You haven't saved the drawing. Abandon?")
+    function bindCanvasEvents() {
+      var unsavedStopAction = function () {
+        return anbt.unsaved && !confirm("You haven't saved the drawing. Abandon?");
+      };
 
       if (window.inforum) {
-        ID('quit').addEventListener('click', ({
-          preventDefault
-        }) => {
-          preventDefault
-          window.top.location.href = window.top.location.origin
+        ID("quit").addEventListener("click", function (e) {
+          e.preventDefault;
+          window.top.location.href = "https://drawception.com/";
         })
-        const backForum = document.createElement('button')
-        backForum.href = '/'
-        backForum.setAttribute('class', 'submit exit')
-        backForum.title = 'Exit'
-        backForum.textContent = 'Exit'
-        backForum.addEventListener('click', ({
-          preventDefault
-        }) => {
-          preventDefault
-          window.frameElement.ownerDocument.querySelector('.v--modal-overlay').outerHTML = ''
+        var backForum = document.createElement("button");
+        backForum.href = "/";
+        backForum.setAttribute("class", "submit exit");
+        backForum.title = "Exit";
+        backForum.textContent = "Exit";
+        backForum.addEventListener("click", function (e) {
+          e.preventDefault;
+          window.frameElement.ownerDocument.querySelector(".v--modal-overlay").outerHTML = "";
         })
-        ID('submit').parentNode.insertBefore(backForum, ID('submit').nextSibling)
+        ID("submit").parentNode.insertBefore(backForum, ID("submit").nextSibling);
       }
-      ID('exit').addEventListener('click', () => {
+      ID("exit").addEventListener('click', function () {
         if (window.incontest) {
-          if (!confirm('Quit the contest? Entry coins will be lost!')) return
-          ID('exit').disabled = true
-          sendPost(
-            '/contests/exit.json', {
-              game_token: window.gameinfo.gameid,
-            },
-            () => {
-              ID('exit').disabled = false
-              window.drawing_aborted = true
-              exitToSandbox()
-              document.location.pathname = '/contests/'
-            },
-            () => {
-              ID('exit').disabled = false
-              alert('Server error. :( Try again?')
-            },
-            () => {
-              ID('exit').disabled = false
-              alert("Server didn't respond in time. :( Try again?")
-            },
-          )
-          return
+          if (!confirm("Quit the contest? Entry coins will be lost!")) return;
+          ID("exit").disabled = true;
+          sendPost("/contests/exit.json", {
+            game_token: window.gameinfo.gameid
+          }, function () {
+            ID("exit").disabled = false;
+            window.drawing_aborted = true;
+            exitToSandbox();
+            document.location.pathname = "/contests/";
+          }, function () {
+            ID("exit").disabled = false;
+            alert("Server error. :( Try again?");
+          }, function () {
+            ID("exit").disabled = false;
+            alert("Server didn't respond in time. :( Try again?");
+          });
+          return;
         }
         if (window.gameinfo.drawfirst) {
-          if (!confirm('Abort creating a draw first game?')) return
-          ID('exit').disabled = true
-          sendPost(
-            '/play/abort-start.json', {
-              game_token: window.gameinfo.gameid,
-            },
-            () => {
-              ID('exit').disabled = false
-              window.drawing_aborted = true
-              exitToSandbox()
-              document.location.pathname = '/create/'
-            },
-            () => {
-              ID('exit').disabled = false
-              alert('Server error. :( Try again?')
-            },
-            () => {
-              ID('exit').disabled = false
-              alert("Server didn't respond in time. :( Try again?")
-            },
-          )
-          return
+          if (!confirm("Abort creating a draw first game?")) return;
+          ID("exit").disabled = true;
+          sendPost("/play/abort-start.json", {
+            game_token: window.gameinfo.gameid
+          }, function () {
+            ID("exit").disabled = false;
+            window.drawing_aborted = true;
+            exitToSandbox();
+            document.location.pathname = "/create/";
+          }, function () {
+            ID("exit").disabled = false;
+            alert("Server error. :( Try again?");
+          }, function () {
+            ID("exit").disabled = false;
+            alert("Server didn't respond in time. :( Try again?");
+          });
+          return;
         }
-        if (!confirm('Really exit?')) return
-        ID('exit').disabled = true
-        sendPost(
-          '/play/exit.json', {
-            game_token: window.gameinfo.gameid,
-          },
-          () => {
-            ID('exit').disabled = false
-            exitToSandbox()
-          },
-        )
-      })
+        if (!confirm("Really exit?")) return;
+        ID("exit").disabled = true;
+        sendPost("/play/exit.json", {
+          game_token: window.gameinfo.gameid
+        }, function () {
+          ID("exit").disabled = false;
+          exitToSandbox();
+        });
+      });
 
-      ID('skip').addEventListener('click', () => {
-        if (unsavedStopAction()) return
-        ID('skip').disabled = true
-        sendPost(
-          '/play/skip.json', {
-            game_token: window.gameinfo.gameid,
-          },
-          () => {
-            // Postpone enabling skip until we get game info
-            getParametersFromPlay()
-          },
-          () => {
-            ID('skip').disabled = false
-            getParametersFromPlay()
-          },
-        )
-      })
+      ID("skip").addEventListener('click', function () {
+        if (unsavedStopAction()) return;
+        ID("skip").disabled = true;
+        sendPost("/play/skip.json", {
+          game_token: window.gameinfo.gameid
+        }, function () {
+          // Postpone enabling skip until we get game info
+          getParametersFromPlay();
+        }, function () {
+          ID("skip").disabled = false;
+          getParametersFromPlay();
+        });
+      });
 
-      ID('start').addEventListener('click', () => {
-        if (unsavedStopAction()) return
-        ID('start').disabled = true
-        getParametersFromPlay()
-      })
+      ID("start").addEventListener('click', function () {
+        if (unsavedStopAction()) return;
+        ID("start").disabled = true;
+        getParametersFromPlay();
+      });
 
-      ID('report').addEventListener('click', () => {
-        if (!confirm('Report this panel?')) return
-        sendPost(
-          '/play/flag.json', {
-            game_token: window.gameinfo.gameid,
-          },
-          () => {
-            ID('report').disabled = false
-            getParametersFromPlay()
-          },
-        )
-      })
+      ID("report").addEventListener('click', function () {
+        if (!confirm("Report this panel?")) return;
+        sendPost("/play/flag.json", {
+          game_token: window.gameinfo.gameid
+        }, function () {
+          ID("report").disabled = false;
+          getParametersFromPlay();
+        });
+      });
 
-      ID('bookmark').addEventListener('click', () => {
-        ID('bookmark').disabled = true
-        let games = localStorage.getItem('gpe_gameBookmarks')
-        games = games ? JSON.parse(games) : {}
-        const caption = window.gameinfo.caption
+      ID("bookmark").addEventListener('click', function () {
+        ID("bookmark").disabled = true;
+        var games = localStorage.getItem("gpe_gameBookmarks");
+        games = games ? JSON.parse(games) : {};
+        var caption = window.gameinfo.caption;
         games[window.gameinfo.gameid] = {
           time: Date.now(),
-          caption: caption ? decodeHTML(caption) : '',
+          caption: caption ? decodeHTML(caption) : ""
+        };
+        localStorage.setItem("gpe_gameBookmarks", JSON.stringify(games));
+      });
+
+      ID("submit").addEventListener('click', function () {
+        var moreThanMinuteLeft = timerStart - Date.now() > 60000;
+        if (options.submitConfirm && moreThanMinuteLeft && !confirm("Ready to submit this drawing?")) return;
+        ID("submit").disabled = true;
+        anbt.MakePNG(300, 250, true);
+        if (options.backup) {
+          localStorage.setItem("anbt_drawingbackup_newcanvas", anbt.pngBase64);
         }
-        localStorage.setItem('gpe_gameBookmarks', JSON.stringify(games))
-      })
+        window.submitting = true;
 
-      ID('submit').addEventListener('click', () => {
-        const moreThanMinuteLeft = timerStart - Date.now() > 60000
-        if (options.submitConfirm && moreThanMinuteLeft && !confirm('Ready to submit this drawing?')) return
-        ID('submit').disabled = true
-        anbt.MakePNG(300, 250, true)
-        if (options.backup) localStorage.setItem('anbt_drawingbackup_newcanvas', anbt.pngBase64)
-        window.submitting = true
-
-        const url = window.incontest ? '/contests/submit-drawing.json' : '/play/draw.json'
-        sendPost(
-          url, {
-            game_token: window.gameinfo.gameid,
-            panel: anbt.pngBase64,
-          },
-          function () {
-            let o
-            try {
-              o = JSON.parse(this.responseText)
-            } catch (e) {
-              o = {
-                error: this.responseText,
-              }
+        var url;
+        if (window.incontest) {
+          url = "/contests/submit-drawing.json";
+        } else {
+          url = "/play/draw.json";
+        }
+        sendPost(url, {
+          game_token: window.gameinfo.gameid,
+          panel: anbt.pngBase64
+        }, function () {
+          var o;
+          try {
+            o = JSON.parse(this.responseText);
+          } catch (e) {
+            o = {
+              error: this.responseText
+            };
+          }
+          if (o.error) {
+            ID("submit").disabled = false;
+            if (typeof o.error == "object") {
+              alert("Error! Please report this data:\n" +
+                "game: " + window.gameinfo.gameid + "\n\n" +
+                "response: \n" + JSON.stringify(o.error)
+              );
+            } else {
+              alert(o.error);
             }
-            if (o.error) {
-              ID('submit').disabled = false
-              alert(typeof o.error === 'object' ? `Error! Please report this data:\ngame: ${window.gameinfo.gameid}\n\nresponse:\n${JSON.stringify(o.error)}` : o.error)
-            } else if (o.message) {
-              ID('submit').disabled = false
-              alert(o.message)
-            } else if (o.url) {
-              window.onbeforeunload = () => {}
-              location.replace(o.url)
-            }
-          },
-          () => {
-            ID('submit').disabled = false
-            alert('Server error. :( Try again?')
-          },
-          () => {
-            ID('submit').disabled = false
-            alert("Server didn't respond in time. :( Try again?")
-          },
-        )
-      })
+          } else if (o.message) {
+            ID("submit").disabled = false;
+            alert(o.message);
+          } else if (o.url) {
+            window.onbeforeunload = function () {};
+            location.replace(o.url);
+          }
+        }, function () {
+          ID("submit").disabled = false;
+          alert("Server error. :( Try again?");
+        }, function () {
+          ID("submit").disabled = false;
+          alert("Server didn't respond in time. :( Try again?");
+        });
+      });
 
-      ID('submitcaption').addEventListener('click', () => {
-        const title = ID('caption').value
+      ID("submitcaption").addEventListener('click', function () {
+        var title = ID("caption").value;
         if (!title) {
-          ID('caption').focus()
-          return alert("You haven't entered a caption!")
+          ID("caption").focus();
+          return alert("You haven't entered a caption!");
         }
-        const onCaptionSuccess = () => {
+        var onCaptionSuccess = function () {
           if (options.bookmarkOwnCaptions) {
-            let games = localStorage.getItem('gpe_gameBookmarks')
-            games = games ? JSON.parse(games) : {}
+            var games = localStorage.getItem("gpe_gameBookmarks");
+            games = games ? JSON.parse(games) : {};
             games[window.gameinfo.gameid] = {
               time: Date.now(),
-              caption: `"${title}"`,
-              own: true,
-            }
-            localStorage.setItem('gpe_gameBookmarks', JSON.stringify(games))
+              caption: '"' + title + '"',
+              own: true
+            };
+            localStorage.setItem("gpe_gameBookmarks", JSON.stringify(games));
           }
-        }
-        window.submitting = true
-        ID('submitcaption').disabled = true
+        };
+        window.submitting = true;
+        ID("submitcaption").disabled = true;
 
-        const url = window.incontest ? '/contests/submit-caption.json' : '/play/describe.json'
-        sendPost(
-          url, {
-            game_token: window.gameinfo.gameid,
-            title,
-          },
-          function () {
-            let o
-            try {
-              o = JSON.parse(this.responseText)
-            } catch (e) {
-              o = {
-                error: this.responseText,
-              }
+        var url;
+        if (window.incontest) {
+          url = "/contests/submit-caption.json";
+        } else {
+          url = "/play/describe.json";
+        }
+        sendPost(url, {
+          game_token: window.gameinfo.gameid,
+          title: title
+        }, function () {
+          var o;
+          try {
+            o = JSON.parse(this.responseText);
+          } catch (e) {
+            o = {
+              error: this.responseText
+            };
+          }
+          if (o.error) {
+            ID("submitcaption").disabled = false;
+            if (typeof o.error == "object") {
+              alert("Error! Please report this data:\n" +
+                "game: " + window.gameinfo.gameid + "\n\n" +
+                "response: \n" + JSON.stringify(o.error)
+              );
+            } else {
+              alert(o.error);
             }
-            if (o.error) {
-              ID('submitcaption').disabled = false
-              alert(typeof o.error === 'object' ? `Error! Please report this data:\ngame: ${window.gameinfo.gameid}\n\nresponse:\n${JSON.stringify(o.error)}` : o.error)
-            } else if (o.message) {
-              ID('submitcaption').disabled = false
-              alert(o.message)
-            } else if (o.url) {
-              onCaptionSuccess()
-              location.replace(o.url)
-            }
-          },
-          () => {
-            ID('submitcaption').disabled = false
-            alert('Server error. :( Try again?')
-          },
-          () => {
-            ID('submitcaption').disabled = false
-            alert("Server didn't respond in time. :( Try again?")
-          },
-        )
-      })
+          } else if (o.message) {
+            ID("submitcaption").disabled = false;
+            alert(o.message);
+          } else if (o.url) {
+            onCaptionSuccess();
+            location.replace(o.url);
+          }
+        }, function () {
+          ID("submitcaption").disabled = false;
+          alert("Server error. :( Try again?");
+        }, function () {
+          ID("submitcaption").disabled = false;
+          alert("Server didn't respond in time. :( Try again?");
+        });
+      });
 
       if (options.enterToCaption) {
-        ID('caption').addEventListener('keydown', (e) => {
+        ID("caption").addEventListener('keydown', function (e) {
           if (e.keyCode == 13) {
-            e.preventDefault()
-            ID('submitcaption').dispatchEvent(new Event('click'))
+            e.preventDefault();
+            ID("submitcaption").click();
           }
-        })
+        });
       }
 
-      const updateUsedChars = () => (ID('usedchars').textContent = 45 - ID('caption').value.length)
-      ID('caption').addEventListener('change', updateUsedChars)
-      ID('caption').addEventListener('keydown', updateUsedChars)
-      ID('caption').addEventListener('input', updateUsedChars)
+      var updateUsedChars = function (e) {
+        ID("usedchars").textContent = 45 - ID("caption").value.length;
+      };
+      ID("caption").addEventListener('change', updateUsedChars);
+      ID("caption").addEventListener('keydown', updateUsedChars);
+      ID("caption").addEventListener('input', updateUsedChars);
 
-      ID('timeplus').addEventListener('click', () => {
+      ID("timeplus").addEventListener('click', function () {
         if (window.gameinfo.friend) {
-          ID('timeplus').disabled = true
-          sendPost(
-            '/play/exit.json', {
-              game_token: window.gameinfo.gameid,
-            },
-            () => {
-              sendGet(
-                `/play/${window.gameinfo.gameid}/?${Date.now()}`,
-                function () {
-                  ID('timeplus').disabled = false
-                  const html = this.responseText
-                  window.gameinfo =
-                    html === '' ? {
-                      error: 'Server returned a blank response :(',
-                    } :
-                    extractInfoFromHTML(html)
-                  let timerStart = Date.now() + 1000 * window.gameinfo.timeleft
-                  console.log(timerStart)
-                },
-                () => {
-                  ID('timeplus').disabled = false
-                  alert('Server error. :( Try again?')
-                },
-              )
-            },
-            () => {
-              ID('timeplus').disabled = false
-              alert('Server error. :( Try again?')
-            },
-            () => {
-              ID('timeplus').disabled = false
-              alert("Server didn't respond in time. :( Try again?")
-            },
-          )
-          return
-        }
-        ID('timeplus').disabled = true
-        sendPost(
-          '/play/add-time.json', {
-            game_token: window.gameinfo.gameid,
-          },
-          function () {
-            const o = JSON.parse(this.responseText)
-            if (o.error) {
-              alert(o.error)
-            } else if (o.callJS == 'updatePlayTime') {
-              timerStart += o.data.seconds * 1000
-              if (window.timesup) {
-                ID('newcanvasyo').classList.remove('locked')
-                anbt.Unlock()
-                timerStart -= 15000 // remove 15 seconds to submit
-                window.timesup = false
+          ID("timeplus").disabled = true;
+          sendPost("/play/exit.json", {
+            game_token: window.gameinfo.gameid
+          }, function () {
+            sendGet("/play/" + window.gameinfo.gameid + "/?" + Date.now(), function () {
+              ID("timeplus").disabled = false;
+              var html = this.responseText;
+              if (html == "") {
+                window.gameinfo = {
+                  error: "Server returned a blank response :("
+                };
+              } else {
+                window.gameinfo = extractInfoFromHTML(html);
               }
-              updateTimer()
-              ID('timeplus').classList.remove('show')
-              // Let play warning sound twice
-              window.playedWarningSound = false
+              timerStart = Date.now() + 1000 * window.gameinfo.timeleft;
+            }, function () {
+              ID("timeplus").disabled = false;
+              alert("Server error. :( Try again?");
+            });
+          }, function () {
+            ID("timeplus").disabled = false;
+            alert("Server error. :( Try again?");
+          }, function () {
+            ID("timeplus").disabled = false;
+            alert("Server didn't respond in time. :( Try again?");
+          });
+          return;
+        }
+        ID("timeplus").disabled = true;
+        sendPost("/play/add-time.json", {
+          game_token: window.gameinfo.gameid
+        }, function () {
+          var o = JSON.parse(this.responseText);
+          if (o.error) {
+            alert(o.error);
+          } else if (o.callJS == "updatePlayTime") {
+            timerStart += o.data.seconds * 1000;
+            if (window.timesup) {
+              ID("newcanvasyo").classList.remove("locked");
+              anbt.Unlock();
+              timerStart -= 15000; // remove 15 seconds to submit
+              window.timesup = false;
             }
-            ID('timeplus').disabled = false
-          },
-          () => {
-            ID('timeplus').disabled = false
-            alert('Server error. :( Try again?')
-          },
-          () => {
-            ID('timeplus').disabled = false
-            alert("Server didn't respond in time. :( Try again?")
-          },
-        )
-      })
+            updateTimer();
+            ID("timeplus").classList.remove("show");
+            // Let play warning sound twice
+            window.playedWarningSound = false;
+          }
+          ID("timeplus").disabled = false;
+        }, function () {
+          ID("timeplus").disabled = false;
+          alert("Server error. :( Try again?");
+        }, function () {
+          ID("timeplus").disabled = false;
+          alert("Server didn't respond in time. :( Try again?");
+        });
+      });
 
-      const old_getClosestColor = window.getClosestColor
-      window.getClosestColor = (rgb, pal) => {
+      var old_getClosestColor = window.getClosestColor;
+      window.getClosestColor = function (rgb, pal) {
         // Allow any color in friend games
-        if (window.gameinfo && window.gameinfo.friend) return rgb2hex(rgb[0], rgb[1], rgb[2])
-        return old_getClosestColor(rgb, pal)
-      }
+        if (window.gameinfo && window.gameinfo.friend) return rgb2hex(rgb[0], rgb[1], rgb[2]);
+        return old_getClosestColor(rgb, pal);
+      };
     }
 
-    const deeper_main = () => {
-      window.onerror = (e, file, line) => {
+    function deeper_main() {
+      window.onerror = function (e, file, line) {
         // Silence the bogus error message from the overwritten page's timer
-        if (e.toString().includes('periodsToSeconds')) return
+        if (e.toString().indexOf("periodsToSeconds") != -1) return;
         // Silence the useless error message
-        if (e.toString().match(/script error/i)) return
-        alert(`${e}${line ? `\nline ${line}` : ''}`)
-      }
+        if (e.toString().match(/script error/i)) return;
+        if (line) {
+          alert(e + "\nline: " + line);
+        } else {
+          alert(e);
+        }
+      };
 
       if (options.newCanvasCSS) {
-        const parent = document.getElementsByTagName('head')[0]
-        if (!parent) parent = document.documentElement
-        const style = document.createElement('style')
-        style.type = 'text/css'
-        const textNode = document.createTextNode(options.newCanvasCSS)
-        style.appendChild(textNode)
-        parent.appendChild(style)
+        var parent = document.getElementsByTagName("head")[0];
+        if (!parent) parent = document.documentElement;
+        var style = document.createElement("style");
+        style.type = "text/css";
+        var textNode = document.createTextNode(options.newCanvasCSS);
+        style.appendChild(textNode);
+        parent.appendChild(style);
       }
 
       if (options.enableWacom) {
-        const stupidPlugin = document.createElement('object')
-        const container = ID('wacomContainer')
-        stupidPlugin.setAttribute('id', 'wacom')
-        stupidPlugin.setAttribute('type', 'application/x-wacomtabletplugin')
-        stupidPlugin.setAttribute('width', '1')
-        stupidPlugin.setAttribute('height', '1')
-        container.appendChild(stupidPlugin)
-        if (options.fixTabletPluginGoingAWOL) fixPluginGoingAWOL()
+        var stupidPlugin = document.createElement("object");
+        var container = ID("wacomContainer");
+        stupidPlugin.setAttribute("id", "wacom");
+        stupidPlugin.setAttribute("type", "application/x-wacomtabletplugin");
+        stupidPlugin.setAttribute("width", "1");
+        stupidPlugin.setAttribute("height", "1");
+        container.appendChild(stupidPlugin);
+        if (options.fixTabletPluginGoingAWOL) fixPluginGoingAWOL();
       }
-      bindCanvasEvents()
+      bindCanvasEvents();
       if (window.insandbox) {
         if (window.panelid) {
-          sendGet(
-            `/panel/drawing/${window.panelid}/-/`,
-            function () {
-              window.gameinfo = extractInfoFromHTML(this.responseText)
-              anbt.FromURL(`${gameinfo.drawinglink}?anbt`) // workaround for non-CORS cached image
-              handleSandboxParameters()
-            },
-            () => {
-              alert('Error loading the panel page. Please try again.')
-            },
-          )
+          sendGet("/panel/drawing/" + window.panelid + "/-/", function () {
+            window.gameinfo = extractInfoFromHTML(this.responseText);
+            anbt.FromURL(gameinfo.drawinglink + "?anbt"); // workaround for non-CORS cached image
+            handleSandboxParameters();
+          }, function () {
+            alert("Error loading the panel page. Please try again.");
+          });
         } else {
           if (window.origpage) {
-            window.gameinfo = extractInfoFromHTML(window.origpage)
-            handleSandboxParameters()
-            window.origpage = null
+            window.gameinfo = extractInfoFromHTML(window.origpage);
+            handleSandboxParameters();
+            window.origpage = null;
           } else {
-            sendGet(
-              '/sandbox/',
-              function () {
-                window.gameinfo = extractInfoFromHTML(this.responseText)
-                handleSandboxParameters()
-              },
-              () => {},
-            )
+            sendGet("/sandbox/", function () {
+              window.gameinfo = extractInfoFromHTML(this.responseText);
+              handleSandboxParameters();
+            }, function () {});
           }
           if (options.backup) {
-            const pngdata = localStorage.getItem('anbt_drawingbackup_newcanvas')
+            var pngdata = localStorage.getItem("anbt_drawingbackup_newcanvas");
             if (pngdata) {
-              anbt.FromPNG(base642bytes(pngdata.substr(22)).buffer)
-              localStorage.removeItem('anbt_drawingbackup_newcanvas')
+              anbt.FromPNG(base642bytes(pngdata.substr(22)).buffer);
+              localStorage.removeItem("anbt_drawingbackup_newcanvas");
             }
           }
         }
       } else {
-        ID('newcanvasyo').className = 'play'
-        getParametersFromPlay()
+        ID("newcanvasyo").className = "play";
+        getParametersFromPlay();
       }
+
       if (!options.smoothening) {
-        const buildSmoothPath = (points, path) => {
-          if (points.length < 2) return
-          path.pathSegList.initialize(path.createSVGPathSegMovetoAbs(points[0].x, points[0].y))
-          for (let i = 1; i < points.length; i++) path.pathSegList.appendItem(path.createSVGPathSegLinetoAbs(points[i].x, points[i].y))
+        buildSmoothPath = function (points, path) {
+          if (points.length < 2) return;
+          path.pathSegList.initialize(path.createSVGPathSegMovetoAbs(points[0].x, points[0].y));
+          for (var i = 1; i < points.length; i++) {
+            var c = points[i];
+            path.pathSegList.appendItem(path.createSVGPathSegLinetoAbs(c.x, c.y));
+          }
         }
       }
 
       // Poor poor memory devices, let's save on memory to avoid them "crashing"...
-      if (/iPad|iPhone/.test(navigator.userAgent)) anbt.fastUndoLevels = 3
+      if (/iPad|iPhone/.test(navigator.userAgent)) anbt.fastUndoLevels = 3;
+
+      window.$ = function () {
+        alert("Some additional script conflicts with ANBT new canvas, please disable it.");
+        window.$ = null;
+        throw new Error("Script conflict with ANBT new canvas");
+      };
     }
-    deeper_main()
+    deeper_main();
   } // needToGoDeeper end
 
   const $ = (selector, array = false) => {
