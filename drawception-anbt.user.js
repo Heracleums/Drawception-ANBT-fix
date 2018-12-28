@@ -13,7 +13,7 @@
 // ==/UserScript==
 const wrapped = () => {
   const SCRIPT_VERSION = '1.146.2018.12'
-  const NEWCANVAS_VERSION = 47 // Increase to update the cached canvas
+  const NEWCANVAS_VERSION = 48 // Increase to update the cached canvas
   const SITE_VERSION = 'c75fc938' // Last seen site version
 
   // == DEFAULT OPTIONS ==
@@ -123,12 +123,12 @@ const wrapped = () => {
       const req = new XMLHttpRequest()
       req.open('GET', 'https://api.github.com/repos/EnderDragonneau/Drawception-ANBT-fix/contents/newcanvas_embedding.html')
       req.setRequestHeader('Accept', 'application/vnd.github.3.raw')
-      req.onload = x => {
-        if (x.length < 10000) {
-          alert(`Error: instead of new canvas code, got this response from GitHub:\n${x}`)
+      req.onload = function() {
+        if (this.responseText.length < 10000) {
+          alert(`Error: instead of new canvas code, got this response from GitHub:\n${this.responseText}`)
           location.pathname = '/'
         } else {
-          localStorage.setItem('anbt_canvasHTML', x)
+          localStorage.setItem('anbt_canvasHTML', this.responseText)
           localStorage.setItem('anbt_canvasHTMLver', NEWCANVAS_VERSION)
           setupNewCanvas(insandbox, url)
         }
