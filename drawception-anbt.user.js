@@ -1975,7 +1975,7 @@ const wrapped = () => {
         $('#main').classList.toggle('anbt_showt')
       })
       if (!hidden) tempUnhideLink.style.display = 'none'
-      $('.forum-thread', true).forEach(({firstChild}) => firstChild.insertAdjacentHTML('beforebegin', tempUnhideLink.outerHTML))
+      $('#main').prepend(tempUnhideLink)
     }
     $('.btn.btn-default', true).forEach(x =>
       x.addEventListener('click', e => {
